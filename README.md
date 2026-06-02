@@ -60,7 +60,38 @@ Add this to your Unity project's `Packages/manifest.json`:
 
 Or copy `unity-plugin/` into your project's `Packages/com.unity-mcp.editor/` folder.
 
-## Build the MCP server
+## Recommended setup for OpenCode
+
+For OpenCode, you usually do **not** need to edit `opencode.json` manually. The Unity package includes a setup workflow that can build the server and configure OpenCode for you.
+
+1. Install the Unity package.
+2. Open **Window → Unity MCP**.
+3. Go to the **Setup** tab.
+4. Click **Run One-Click Setup**.
+
+The setup workflow will:
+
+- validate Unity MCP settings
+- check that Go 1.23+ is installed
+- build the Go MCP server binary
+- export a project-local `opencode.json`
+- merge the Unity MCP entry into the global OpenCode config at `~/.config/opencode/opencode.json`
+- preserve existing OpenCode settings, agents, providers, and other MCP servers
+- start the local MCP/WebSocket server
+- run a health check
+- let Unity connect its WebSocket client automatically
+
+You can also run the Setup-tab steps individually:
+
+- **Check** Go Installation
+- **Build** Server Binary
+- **Configure** OpenCode Config
+
+After setup, restart OpenCode or reload its MCP servers. In the Unity MCP window, use **Reconnect** if the status is not connected.
+
+## Manual server build
+
+Use this only if you do not want to use the Unity MCP Setup tab or if you are developing the server itself.
 
 From the repository root:
 
@@ -78,9 +109,11 @@ go build -o bin/unity-mcp.exe ./cmd/unity-mcp
 
 The binary is intentionally ignored by git. Build it locally or publish release artifacts separately.
 
-## Configure OpenCode
+## Manual OpenCode configuration
 
-Copy `opencode.example.json` or add the MCP entry to your existing OpenCode config.
+This is a fallback for non-Unity setup flows. For normal OpenCode usage, prefer **Window → Unity MCP → Setup → Run One-Click Setup**.
+
+Copy `opencode.example.json` or add the MCP entry to your existing OpenCode config manually.
 
 Linux/macOS example:
 
