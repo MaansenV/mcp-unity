@@ -1,0 +1,579 @@
+/* ============================================
+   Unity MCP Window — Wireframe Design System
+   ============================================
+   Muted technical wireframe with a single
+   green accent (#16a34a).
+
+   Tokens:
+   - Spacing: 4 / 8 / 12 / 16 / 24 / 32
+   - Radius:  0  (sharp wireframe corners)
+   - Type:    11 (caption) / 12 (body) / 13 (heading) / 16 (display)
+   - Borders: 1px (chrome) / 2px (selected) / 4px (outer frame)
+   - Accent:  #16a34a (technical green)
+   - Error:   #d32f2f (single semantic exception)
+   ============================================ */
+
+/* --- Window (strong black outer border) --- */
+.root {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: #d6d6d6;
+    border-width: 4px;
+    border-color: #000000;
+}
+
+/* --- Header --- */
+.header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12 16;
+    background-color: #d6d6d6;
+    border-bottom-width: 2px;
+    border-bottom-color: #000000;
+}
+
+.header-title {
+    font-size: 16;
+    -unity-font-style: bold;
+    color: #000000;
+}
+
+.header-status {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* --- Status Pill --- */
+.status-pill {
+    flex-direction: row;
+    align-items: center;
+    padding: 4 10;
+    border-width: 1px;
+    border-color: #000000;
+    background-color: #e8e8e8;
+    margin-left: 8;
+    border-radius: 0;
+    min-width: 78px;
+    -unity-text-align: middle-center;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-width: 1px;
+    border-color: #000000;
+    background-color: #ffffff;
+    margin-right: 6px;
+}
+
+.status-text {
+    font-size: 11;
+    -unity-font-style: bold;
+    color: #000000;
+}
+
+/* Pill states — black/white wireframe, green for connected */
+.status-pill.connected {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+.status-pill.connected .status-dot { background-color: #ffffff; border-color: #ffffff; }
+.status-pill.connected .status-text { color: #ffffff; }
+
+.status-pill.connecting {
+    background-color: #e8e8e8;
+    border-color: #000000;
+}
+.status-pill.connecting .status-dot { background-color: #000000; border-color: #000000; }
+
+.status-pill.error {
+    background-color: #e8e8e8;
+    border-color: #d32f2f;
+}
+.status-pill.error .status-dot { background-color: #d32f2f; border-color: #d32f2f; }
+.status-pill.error .status-text { color: #d32f2f; }
+
+.status-pill.disconnected {
+    background-color: #e8e8e8;
+    border-color: #000000;
+}
+.status-pill.disconnected .status-dot { background-color: #ffffff; }
+
+/* --- Tab Bar (boxed tabs) --- */
+.tabs {
+    flex-direction: row;
+    padding: 0;
+    background-color: #d6d6d6;
+    border-bottom-width: 2px;
+    border-bottom-color: #000000;
+}
+
+.tab {
+    flex-grow: 1;
+    padding: 10 16;
+    border-width: 1px;
+    border-color: #000000;
+    background-color: #e8e8e8;
+    color: #000000;
+    font-size: 12;
+    -unity-text-align: center;
+    -unity-font-style: bold;
+    margin-left: 0;
+}
+
+.tab:hover { background-color: #f0f0f0; }
+
+.tab.active {
+    background-color: #eeeeee;
+    color: #16a34a;
+    border-color: #16a34a;
+    border-width: 2px;
+    margin-top: -1px;
+    margin-bottom: -1px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+}
+
+/* --- Content Area --- */
+.content {
+    flex-grow: 1;
+    padding: 24 20 32 20;
+    background-color: #d6d6d6;
+}
+
+.content .unity-scroll-view__content-container {
+    padding-bottom: 20;
+}
+
+/* --- Page Title (optional) --- */
+.page-title {
+    font-size: 16;
+    -unity-font-style: bold;
+    color: #000000;
+    margin-bottom: 16;
+}
+
+/* --- Card / Section --- */
+.card {
+    background-color: #eeeeee;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    padding: 18;
+    margin-bottom: 16;
+}
+
+/* Status card on the Status tab — green wireframe accent */
+.card.status-card {
+    border-width: 2px;
+    border-color: #16a34a;
+}
+
+.card-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16;
+    padding-bottom: 12;
+    border-bottom-width: 1px;
+    border-bottom-color: #000000;
+    min-height: 40px;
+}
+
+.card-title {
+    font-size: 13;
+    -unity-font-style: bold;
+    color: #000000;
+    margin-bottom: 3;
+}
+
+.card-subtitle {
+    font-size: 11;
+    color: #555555;
+    margin-top: 0;
+    margin-bottom: 2;
+}
+
+.card-count {
+    font-size: 11;
+    color: #000000;
+    background-color: #e8e8e8;
+    padding: 1 8;
+    border-width: 1px;
+    border-color: #000000;
+    border-radius: 0;
+}
+
+/* --- Key-Value Row --- */
+.kv-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8 0;
+    margin-bottom: 4;
+    min-height: 32px;
+}
+
+.kv-label {
+    font-size: 12;
+    color: #000000;
+    flex-shrink: 0;
+    min-width: 105px;
+    margin-right: 10;
+}
+
+.kv-value {
+    font-size: 12;
+    color: #000000;
+    -unity-text-align: middle-right;
+}
+
+.kv-value.mono {
+    font-family: monospace;
+    color: #000000;
+    font-size: 11;
+}
+
+.kv-value.accent   { color: #16a34a; -unity-font-style: bold; }
+.kv-value.success  { color: #16a34a; -unity-font-style: bold; }
+.kv-value.warning  { color: #000000; -unity-font-style: bold; }
+.kv-value.error    { color: #d32f2f; -unity-font-style: bold; }
+
+/* --- Buttons --- */
+.actions {
+    flex-direction: row;
+    margin-top: 12;
+    padding-top: 12;
+    border-top-width: 1px;
+    border-top-color: #000000;
+}
+
+Button {
+    padding: 6 14;
+    margin-right: 8;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    background-color: #e8e8e8;
+    color: #000000;
+    font-size: 12;
+    -unity-font-style: bold;
+}
+
+Button:hover  { background-color: #f0f0f0; }
+Button:active { background-color: #e0e0e0; }
+
+Button.primary {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+}
+
+Button.primary:hover {
+    background-color: #15803d;
+    border-color: #15803d;
+}
+
+Button.full-width {
+    flex-grow: 1;
+    margin-right: 0;
+}
+
+/* --- Form Fields --- */
+TextField,
+IntegerField,
+DropdownField {
+    background-color: #e8e8e8;
+    border-width: 1px;
+    border-color: #000000;
+    border-radius: 0;
+    padding: 2 4;
+    color: #000000;
+    font-size: 12;
+    min-height: 26px;
+}
+
+TextField .unity-base-field__input,
+IntegerField .unity-base-field__input,
+DropdownField .unity-base-field__input,
+TextField .unity-text-input,
+IntegerField .unity-text-input,
+DropdownField .unity-base-popup-field__input,
+.unity-text-field__input,
+.unity-base-text-field__input {
+    background-color: #e8e8e8;
+    color: #000000;
+    border-width: 0;
+    padding: 2 4;
+}
+
+TextField Label,
+IntegerField Label,
+DropdownField Label {
+    color: #000000;
+}
+
+TextField:disabled,
+IntegerField:disabled,
+DropdownField:disabled,
+TextField:disabled .unity-base-field__input,
+IntegerField:disabled .unity-base-field__input,
+DropdownField:disabled .unity-base-field__input {
+    background-color: #dcdcdc;
+    color: #555555;
+}
+
+TextField:focus,
+IntegerField:focus,
+DropdownField:focus { border-color: #16a34a; border-width: 2px; }
+
+Toggle { margin-left: 0; }
+Toggle .unity-toggle__checkmark { border-color: #000000; background-color: #e8e8e8; }
+Toggle:checked .unity-toggle__checkmark { background-color: #16a34a; border-color: #000000; }
+
+/* --- Step (Setup tab) --- */
+.step {
+    flex-direction: row;
+    align-items: center;
+    padding: 9 0;
+    min-height: 36px;
+}
+
+.divider {
+    height: 1px;
+    background-color: #000000;
+    margin: 8 0;
+}
+
+.step-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    margin-right: 12;
+    -unity-text-align: center;
+    font-size: 12;
+    -unity-font-style: bold;
+    color: #000000;
+    background-color: #e8e8e8;
+}
+
+.step-icon.done    { background-color: #16a34a; color: #ffffff; border-color: #16a34a; }
+.step-icon.pending { background-color: #e8e8e8; color: #000000; border-color: #000000; }
+.step-icon.running { background-color: #e8e8e8; color: #000000; border-color: #000000; }
+
+.step-content {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.step-title {
+    font-size: 12;
+    -unity-font-style: bold;
+    color: #000000;
+}
+
+.step-title.done { color: #16a34a; }
+.step-detail {
+    font-size: 11;
+    color: #555555;
+    margin-top: 2;
+}
+
+.step-action {
+    margin-left: 12;
+}
+
+/* --- Filter Bar --- */
+.filter-bar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 14;
+    min-height: 30px;
+}
+
+/* --- Filter Chip (clickable toggle) --- */
+.chip {
+    padding: 3 10;
+    border-radius: 0;
+    background-color: #e8e8e8;
+    border-width: 1px;
+    border-color: #000000;
+    color: #000000;
+    font-size: 11;
+    -unity-font-style: bold;
+}
+
+.chip:hover { background-color: #f0f0f0; }
+
+.chip.active {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+}
+
+/* --- Search Field (takes available space) --- */
+.search {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 10;
+}
+
+/* --- Empty State --- */
+.empty {
+    padding: 24 16;
+    -unity-text-align: center;
+}
+
+.empty-text {
+    font-size: 12;
+    color: #555555;
+    -unity-font-style: italic;
+}
+
+/* --- List --- */
+.list {
+    background-color: #e8e8e8;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    flex-grow: 1;
+    min-height: 200px;
+}
+
+/* --- List Row --- */
+.list-row {
+    padding: 8 12;
+    border-bottom-width: 1px;
+    border-bottom-color: #e0e0e0;
+}
+
+.list-row:hover { background-color: #f5f5f5; }
+.list-row.selected { background-color: #eeeeee; border-color: #16a34a; border-width: 2px; }
+
+.list-row-title {
+    font-size: 12;
+    color: #000000;
+    -unity-font-style: bold;
+}
+
+.list-row-meta {
+    font-size: 11;
+    color: #555555;
+    margin-top: 2;
+}
+
+/* --- Client List Item --- */
+.client {
+    flex-direction: row;
+    align-items: center;
+    padding: 10;
+    background-color: #e8e8e8;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    margin-bottom: 8;
+}
+
+.client-info {
+    flex-grow: 1;
+    flex-direction: column;
+    margin-left: 12;
+}
+
+.client-name {
+    font-size: 12;
+    color: #000000;
+    -unity-font-style: bold;
+}
+
+.client-address {
+    font-size: 11;
+    color: #555555;
+    font-family: monospace;
+    margin-top: 2;
+}
+
+.client-meta {
+    font-size: 10;
+    color: #555555;
+    -unity-text-align: middle-right;
+}
+
+/* --- Log Entry (kept for parity, not currently visible) --- */
+.log-entry {
+    padding: 4 12;
+    font-family: monospace;
+    font-size: 11;
+    border-bottom-width: 1px;
+    border-bottom-color: #e0e0e0;
+    color: #000000;
+}
+
+.log-time  { color: #555555; }
+.log-cat   { color: #000000; -unity-font-style: bold; }
+.log-info  { color: #000000; }
+.log-warn  { color: #000000; background-color: #f0f0f0; }
+.log-error { color: #d32f2f; -unity-font-style: bold; }
+.log-debug { color: #555555; }
+
+/* --- Code / URL Block --- */
+.code-block {
+    background-color: #e8e8e8;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    padding: 8 10;
+    font-family: monospace;
+    font-size: 11;
+    color: #000000;
+    margin-top: 8;
+    white-space: pre;
+}
+
+/* --- Progress --- */
+ProgressBar {
+    margin: 12 0;
+    height: 4px;
+}
+
+ProgressBar > .unity-progress-bar__background {
+    background-color: #e8e8e8;
+    border-width: 1px;
+    border-color: #000000;
+    border-radius: 0;
+}
+
+ProgressBar > .unity-progress-bar__container > .unity-progress-bar__progress {
+    background-color: #16a34a;
+    border-radius: 0;
+}
+
+/* --- Hero Status (Status tab top) --- */
+.hero-status {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12;
+}
+
+.hero-status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+    border-width: 1px;
+    border-color: #000000;
+    margin-right: 12;
+    background-color: #e8e8e8;
+}
+
+.hero-status-dot.connected  { background-color: #16a34a; border-color: #16a34a; }
+.hero-status-dot.connecting { background-color: #e8e8e8; border-color: #000000; }
+.hero-status-dot.error      { background-color: #d32f2f; border-color: #d32f2f; }
+
+.hero-status-text {
+    font-size: 16;
+    -unity-font-style: bold;
+    color: #000000;
+}
