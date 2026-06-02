@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+*.cs text eol=lf
+*.go text eol=lf
+*.json text eol=lf
+*.asmdef text eol=lf
+*.uss text eol=lf
+*.md text eol=lf
+
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
