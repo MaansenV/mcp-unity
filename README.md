@@ -43,10 +43,8 @@ In Unity:
 3. Enter:
 
 ```text
-https://github.com/YOUR_ORG/unity-mcp.git?path=unity-plugin
+https://github.com/MaansenV/EasyMCP-Unity.git?path=unity-plugin
 ```
-
-Replace `YOUR_ORG` with the GitHub organization/user you publish this repository under.
 
 ### Option B: Local package during development
 

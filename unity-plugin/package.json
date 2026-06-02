@@ -5,9 +5,9 @@
   "description": "Unity Editor integration for AI agents via Model Context Protocol (MCP). Provides full editor access for scene management, asset creation, script editing, and more.",
   "unity": "6000.0",
   "unityRelease": "0f1",
-  "documentationUrl": "https://github.com/unity-mcp/unity-mcp",
-  "changelogUrl": "https://github.com/unity-mcp/unity-mcp/releases",
-  "licensesUrl": "https://github.com/unity-mcp/unity-mcp/blob/main/LICENSE",
+  "documentationUrl": "https://github.com/MaansenV/EasyMCP-Unity",
+  "changelogUrl": "https://github.com/MaansenV/EasyMCP-Unity/releases",
+  "licensesUrl": "https://github.com/MaansenV/EasyMCP-Unity/blob/main/LICENSE",
   "dependencies": {},
   "keywords": [
     "mcp",
@@ -19,7 +19,7 @@
   ],
   "author": {
     "name": "Unity-MCP",
-    "url": "https://github.com/unity-mcp"
+    "url": "https://github.com/MaansenV"
   },
   "type": "tool"
 }
