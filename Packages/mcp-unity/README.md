@@ -57,6 +57,8 @@ MCP Unity provides automatic integration with VSCode-like IDEs (Visual Studio Co
 
 The following tools are available for manipulating and querying Unity scenes and GameObjects via MCP:
 
+#### Scene & GameObject Management
+
 - `execute_menu_item`: Executes Unity menu items (functions tagged with the MenuItem attribute)
   > **Example prompt:** "Execute the menu item 'GameObject/Create Empty' to create a new empty GameObject"
 
@@ -69,47 +71,14 @@ The following tools are available for manipulating and querying Unity scenes and
 - `update_component`: Updates component fields on a GameObject or adds it to the GameObject if it does not contain the component
   > **Example prompt:** "Add a Rigidbody component to the Player object and set its mass to 5"
 
-- `add_package`: Installs new packages in the Unity Package Manager
-  > **Example prompt:** "Add the TextMeshPro package to my project"
-
-- `run_tests`: Runs tests using the Unity Test Runner
-  > **Example prompt:** "Run all the EditMode tests in my project"
-
-- `send_console_log`: Send a console log to Unity
-  > **Example prompt:** "Send a console log to Unity Editor"
-
-- `add_asset_to_scene`: Adds an asset from the AssetDatabase to the Unity scene
-  > **Example prompt:** "Add the Player prefab from my project to the current scene"
-
-- `create_prefab`: Creates a prefab with optional MonoBehaviour script and serialized field values
-  > **Example prompt:** "Create a prefab named 'Player' from the 'PlayerController' script"
-
-- `create_scene`: Creates a new scene and saves it to the specified path
-  > **Example prompt:** "Create a new scene called 'Level1' in the Scenes folder"
-
-- `load_scene`: Loads a scene by path or name, with optional additive loading
-  > **Example prompt:** "Load the MainMenu scene"
-
-- `delete_scene`: Deletes a scene by path or name and removes it from Build Settings
-  > **Example prompt:** "Delete the old TestScene from my project"
-
 - `get_gameobject`: Gets detailed information about a specific GameObject including all components
   > **Example prompt:** "Get the details of the Player GameObject"
 
-- `get_console_logs`: Retrieves logs from the Unity console with pagination support
-  > **Example prompt:** "Show me the last 20 error logs from the Unity console"
+- `gameobject_find`: Finds GameObjects by name, tag, or component type across all loaded scenes
+  > **Example prompt:** "Find all GameObjects with a Rigidbody component"
 
-- `recompile_scripts`: Recompiles all scripts in the Unity project
-  > **Example prompt:** "Recompile scripts in my Unity project"
-
-- `save_scene`: Saves the current active scene, with optional Save As to a new path
-  > **Example prompt:** "Save the current scene" or "Save the scene as 'Assets/Scenes/Level2.unity'"
-
-- `get_scene_info`: Gets information about the active scene including name, path, dirty state, and all loaded scenes
-  > **Example prompt:** "What scenes are currently loaded in my project?"
-
-- `unload_scene`: Unloads a scene from the hierarchy (does not delete the scene asset)
-  > **Example prompt:** "Unload the UI scene from the hierarchy"
+- `gameobject_create`: Creates empty or primitive GameObjects (Cube, Sphere, Capsule, Cylinder, Plane, Quad) with optional parent and transform
+  > **Example prompt:** "Create a red Cube at position (0, 5, 0) named 'Target'"
 
 - `duplicate_gameobject`: Duplicates a GameObject in the scene with optional renaming and reparenting
   > **Example prompt:** "Duplicate the Enemy prefab 5 times and rename them Enemy_1 through Enemy_5"
@@ -119,6 +88,8 @@ The following tools are available for manipulating and querying Unity scenes and
 
 - `reparent_gameobject`: Changes the parent of a GameObject in the hierarchy
   > **Example prompt:** "Move the HealthBar object to be a child of the UI Canvas"
+
+#### Transform Tools
 
 - `move_gameobject`: Moves a GameObject to a new position (local or world space)
   > **Example prompt:** "Move the Player object to position (10, 0, 5) in world space"
@@ -132,6 +103,62 @@ The following tools are available for manipulating and querying Unity scenes and
 - `set_transform`: Sets position, rotation, and scale of a GameObject in a single operation
   > **Example prompt:** "Set the Cube's position to (0, 5, 0), rotation to (0, 90, 0), and scale to (2, 2, 2)"
 
+#### Component Tools
+
+- `gameobject_component_get`: Gets detailed serialized data for a specific component on a GameObject
+  > **Example prompt:** "Get the Camera component data on Main Camera"
+
+- `gameobject_component_destroy`: Removes a component from a GameObject
+  > **Example prompt:** "Remove the Rigidbody component from the Player object"
+
+- `gameobject_component_list_all`: Lists all available Component types across loaded assemblies with search filtering and pagination
+  > **Example prompt:** "List all component types containing 'Audio'"
+
+#### Object Access
+
+- `object_get_data`: Gets serialized data for any UnityEngine.Object by instance ID
+  > **Example prompt:** "Get the serialized data for object with instance ID 12345"
+
+- `object_modify`: Modifies serialized properties of any UnityEngine.Object by instance ID
+  > **Example prompt:** "Change the name of object 12345 to 'NewName'"
+
+#### Asset Management
+
+- `add_asset_to_scene`: Adds an asset from the AssetDatabase to the Unity scene
+  > **Example prompt:** "Add the Player prefab from my project to the current scene"
+
+- `assets_find`: Finds Unity project assets using search filters with optional folder restrictions
+  > **Example prompt:** "Find all prefab assets containing 'Enemy' in the name"
+
+- `assets_find_built_in`: Finds Unity built-in resources such as shaders and materials
+  > **Example prompt:** "Find the Standard shader in Unity's built-in resources"
+
+- `assets_get_data`: Retrieves metadata and serialized property data for a Unity asset
+  > **Example prompt:** "Get detailed data for the material at Assets/Materials/Player.mat"
+
+- `assets_create_folder`: Creates one or more folders in the Unity AssetDatabase
+  > **Example prompt:** "Create a folder called 'Enemies' under Assets/Prefabs"
+
+- `assets_copy`: Copies one or more assets within the project
+  > **Example prompt:** "Copy the Player prefab to Assets/Prefabs/Backups/"
+
+- `assets_move`: Moves or renames assets within the project
+  > **Example prompt:** "Move the old material to Assets/Deprecated/"
+
+- `assets_delete`: Deletes one or more assets from the project (requires confirmation)
+  > **Example prompt:** "Delete the unused material at Assets/Temp/old.mat"
+
+- `assets_modify`: Modifies serialized properties of a Unity asset
+  > **Example prompt:** "Change the metallic value of the Player material to 0.8"
+
+- `assets_refresh`: Refreshes the Unity AssetDatabase
+  > **Example prompt:** "Refresh the AssetDatabase to pick up new files"
+
+- `assets_shader_list_all`: Lists all shaders in the project with optional search filtering
+  > **Example prompt:** "List all shaders containing 'Unlit'"
+
+#### Material Tools
+
 - `create_material`: Creates a new material with specified shader and saves it to the project
   > **Example prompt:** "Create a red material called 'EnemyMaterial' using the URP Lit shader"
 
@@ -143,6 +170,110 @@ The following tools are available for manipulating and querying Unity scenes and
 
 - `get_material_info`: Gets detailed information about a material including shader and all properties
   > **Example prompt:** "Show me all the properties of the 'PlayerMaterial'"
+
+#### Prefab Workflow
+
+- `create_prefab`: Creates a prefab with optional MonoBehaviour script and serialized field values
+  > **Example prompt:** "Create a prefab named 'Player' from the 'PlayerController' script"
+
+- `prefab_create_from_scene`: Creates a prefab asset from an existing scene GameObject
+  > **Example prompt:** "Save the Player object as a prefab at Assets/Prefabs/Player.prefab"
+
+- `prefab_open`: Opens a prefab in Prefab Mode for editing
+  > **Example prompt:** "Open the Player prefab for editing"
+
+- `prefab_close`: Closes the current Prefab Stage, optionally saving changes
+  > **Example prompt:** "Close the prefab stage and save changes"
+
+- `prefab_save`: Saves a prefab asset or applies overrides from a prefab instance
+  > **Example prompt:** "Save the Player prefab asset"
+
+#### Scene Management
+
+- `create_scene`: Creates a new scene and saves it to the specified path
+  > **Example prompt:** "Create a new scene called 'Level1' in the Scenes folder"
+
+- `load_scene`: Loads a scene by path or name, with optional additive loading
+  > **Example prompt:** "Load the MainMenu scene"
+
+- `save_scene`: Saves the current active scene, with optional Save As to a new path
+  > **Example prompt:** "Save the current scene" or "Save the scene as 'Assets/Scenes/Level2.unity'"
+
+- `delete_scene`: Deletes a scene by path or name and removes it from Build Settings
+  > **Example prompt:** "Delete the old TestScene from my project"
+
+- `unload_scene`: Unloads a scene from the hierarchy (does not delete the scene asset)
+  > **Example prompt:** "Unload the UI scene from the hierarchy"
+
+- `get_scene_info`: Gets information about the active scene including name, path, dirty state, and all loaded scenes
+  > **Example prompt:** "What scenes are currently loaded in my project?"
+
+- `scene_set_active`: Sets a loaded scene as the active scene
+  > **Example prompt:** "Set the Level2 scene as the active scene"
+
+- `scene_get_data`: Gets detailed data for a scene including root GameObjects
+  > **Example prompt:** "Show me the root objects in the active scene"
+
+- `scene_list_opened`: Lists all currently opened scenes with their metadata
+  > **Example prompt:** "List all open scenes and their load states"
+
+#### Editor & Console
+
+- `send_console_log`: Send a console log to Unity
+  > **Example prompt:** "Send a console log to Unity Editor"
+
+- `get_console_logs`: Retrieves logs from the Unity console with pagination support
+  > **Example prompt:** "Show me the last 20 error logs from the Unity console"
+
+- `console_clear_logs`: Clears the Unity Editor console
+  > **Example prompt:** "Clear the Unity console"
+
+- `editor_application_get_state`: Gets the current Unity Editor application state (play mode, compilation, etc.)
+  > **Example prompt:** "Is the Unity Editor currently in Play Mode?"
+
+- `editor_application_set_state`: Sets the Unity Editor state (play/pause)
+  > **Example prompt:** "Enter Play Mode" or "Pause the editor"
+
+- `editor_selection_get`: Gets the current Unity Editor selection (selected GameObjects, assets)
+  > **Example prompt:** "What objects are currently selected in the editor?"
+
+- `recompile_scripts`: Recompiles all scripts in the Unity project
+  > **Example prompt:** "Recompile scripts in my Unity project"
+
+#### Profiler & Diagnostics
+
+- `profiler_start`: Enables the Unity Profiler
+  > **Example prompt:** "Start the Unity Profiler"
+
+- `profiler_stop`: Disables the Unity Profiler
+  > **Example prompt:** "Stop the Unity Profiler"
+
+- `profiler_get_status`: Gets the current profiler status and memory usage
+  > **Example prompt:** "Is the profiler running and how much memory is allocated?"
+
+- `profiler_get_memory_stats`: Gets detailed memory statistics from the Unity Profiler
+  > **Example prompt:** "Show me the current memory allocation breakdown"
+
+#### Reflection & Type System
+
+- `reflection_method_find`: Searches for methods across all loaded assemblies by type name, method name, or search query
+  > **Example prompt:** "Find all methods on the Transform class"
+
+- `reflection_method_call`: Invokes a method on a type via reflection with optional parameters
+  > **Example prompt:** "Call Mathf.Abs with -5 as the parameter"
+
+- `type_get_json_schema`: Generates a JSON schema describing a Unity type's public properties and methods
+  > **Example prompt:** "Show me the JSON schema for UnityEngine.Vector3"
+
+#### Testing & Packages
+
+- `run_tests`: Runs tests using the Unity Test Runner
+  > **Example prompt:** "Run all the EditMode tests in my project"
+
+- `add_package`: Installs new packages in the Unity Package Manager
+  > **Example prompt:** "Add the TextMeshPro package to my project"
+
+#### Batch Operations
 
 - `batch_execute`: Executes multiple tool operations in a single batch request, reducing round-trips and enabling atomic operations with optional rollback on failure
   > **Example prompt:** "Create 10 empty GameObjects named Enemy_1 through Enemy_10 in a single batch operation"

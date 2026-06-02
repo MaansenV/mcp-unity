@@ -146,6 +146,46 @@ Node reads config from `../ProjectSettings/McpUnitySettings.json` relative to **
 - `assign_material` — Assign materials to Renderer components
 - `modify_material` — Modify material properties (colors, floats, textures)
 - `get_material_info` — Get material details including all properties
+- `batch_execute` — Execute multiple tool operations in a single batch
+- `move_gameobject` — Move GameObjects (local/world space)
+- `rotate_gameobject` — Rotate GameObjects (local/world space)
+- `scale_gameobject` — Scale GameObjects
+- `set_transform` — Set position, rotation, scale in one operation
+- `gameobject_find` — Find GameObjects by name/tag/component type
+- `gameobject_create` — Create empty or primitive GameObjects
+- `gameobject_component_get` — Get component serialized data
+- `gameobject_component_destroy` — Remove components from GameObjects
+- `gameobject_component_list_all` — List all available Component types
+- `object_get_data` — Get serialized data for any UnityEngine.Object
+- `object_modify` — Modify serialized properties of any UnityEngine.Object
+- `assets_find` — Find assets by filter/folder
+- `assets_find_built_in` — Find Unity built-in resources
+- `assets_get_data` — Get asset metadata and serialized properties
+- `assets_create_folder` — Create folders in AssetDatabase
+- `assets_copy` — Copy assets within the project
+- `assets_move` — Move/rename assets
+- `assets_delete` — Delete assets (with confirmation)
+- `assets_modify` — Modify asset serialized properties
+- `assets_refresh` — Refresh AssetDatabase
+- `assets_shader_list_all` — List all shaders with search
+- `prefab_create_from_scene` — Create prefab from scene GameObject
+- `prefab_open` — Open prefab in Prefab Mode
+- `prefab_close` — Close Prefab Stage
+- `prefab_save` — Save prefab or apply overrides
+- `console_clear_logs` — Clear Unity console
+- `editor_application_get_state` — Get editor state (play/pause/compiling)
+- `editor_application_set_state` — Set editor play/pause state
+- `editor_selection_get` — Get current editor selection
+- `profiler_start` — Enable Unity Profiler
+- `profiler_stop` — Disable Unity Profiler
+- `profiler_get_status` — Get profiler status and memory
+- `profiler_get_memory_stats` — Get detailed memory statistics
+- `reflection_method_find` — Search methods across assemblies
+- `reflection_method_call` — Invoke methods via reflection
+- `type_get_json_schema` — Generate JSON schema for Unity types
+- `scene_set_active` — Set active scene
+- `scene_get_data` — Get scene data with root GameObjects
+- `scene_list_opened` — List all opened scenes
 
 ### Available resources (current)
 - `unity://menu-items` — List of available menu items
