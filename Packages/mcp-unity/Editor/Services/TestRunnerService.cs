@@ -81,13 +81,52 @@ namespace McpUnity.Services
 
             if (!string.IsNullOrEmpty(testFilter))
             {
-                filter.testNames = new[] { testFilter };
+                // First try to find matching tests by retrieving the test list
+                var matchingTests = await FindMatchingTestsAsync(testMode, testFilter);
+                
+                if (matchingTests.Count > 0)
+                {
+                    // Use exact test names for precise filtering
+                    filter.testNames = matchingTests.ToArray();
+                    McpLogger.LogInfo($"Found {matchingTests.Count} tests matching filter '{testFilter}'");
+                }
+                else
+                {
+                    // Fallback: use the filter as-is (exact match)
+                    filter.testNames = new[] { testFilter };
+                    McpLogger.LogInfo($"No tests found matching '{testFilter}', trying exact match");
+                }
             }
 
             _testRunnerApi.Execute(new ExecutionSettings(filter));
 
             return await WaitForCompletionAsync(
                 McpUnitySettings.Instance.RequestTimeoutSeconds);
+        }
+        
+        /// <summary>
+        /// Finds tests matching the filter string (supports partial name matching)
+        /// </summary>
+        /// <param name="testMode">The test mode to search in</param>
+        /// <param name="testFilter">The filter string to match against test names</param>
+        /// <returns>List of matching test full names</returns>
+        private async Task<List<string>> FindMatchingTestsAsync(TestMode testMode, string testFilter)
+        {
+            var allTests = await RetrieveTestsAsync(testMode);
+            var matchingNames = new List<string>();
+            var filterLower = testFilter.ToLowerInvariant();
+            
+            foreach (var test in allTests)
+            {
+                // Match against full name, class name, or method name
+                if (test.FullName.ToLowerInvariant().Contains(filterLower) ||
+                    test.Name.ToLowerInvariant().Contains(filterLower))
+                {
+                    matchingNames.Add(test.FullName);
+                }
+            }
+            
+            return matchingNames;
         }
         
         /// <summary>
