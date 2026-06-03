@@ -44,7 +44,9 @@ namespace McpUnity.Tools
 
             // Schedule actual compilation AFTER this response goes out,
             // so the WebSocket response is sent before domain reload kills the connection.
-            EditorApplication.delayCall += () =>
+            // Use MainThreadDispatcher (update-based) so compilation starts even when
+            // Unity Editor is not focused.
+            McpUnity.Utils.MainThreadDispatcher.Post(() =>
             {
                 if (!EditorApplication.isCompiling)
                 {
@@ -55,7 +57,7 @@ namespace McpUnity.Tools
                 {
                     McpLogger.LogInfo("Unity is already compiling. Waiting for current compilation to finish.");
                 }
-            };
+            });
 
             return new JObject
             {
@@ -63,7 +65,6 @@ namespace McpUnity.Tools
                 ["status"] = "processing",
                 ["operationId"] = operationId,
                 ["message"] = "Script compilation requested. " +
-                    "Unity may defer compilation/domain reload until the editor gains focus. " +
                     "Call recompile_scripts again to check the result.",
                 ["logs"] = new JArray()
             };

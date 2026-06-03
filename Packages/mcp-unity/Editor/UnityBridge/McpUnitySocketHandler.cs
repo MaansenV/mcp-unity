@@ -54,8 +54,11 @@ namespace McpUnity.Unity
         /// <summary>
         /// Handle incoming messages from WebSocket clients.
         /// WebSocketSharp invokes this on a background thread; we marshal the entire
-        /// message-handling body onto Unity's main thread via EditorApplication.delayCall
-        /// before touching any Editor APIs.
+        /// message-handling body onto Unity's main thread via MainThreadDispatcher
+        /// (EditorApplication.update-based) before touching any Editor APIs.
+        /// We use update-based dispatch instead of delayCall because delayCall is
+        /// throttled/paused when Unity loses application focus, which causes
+        /// MCP request timeouts.
         ///
         /// Why this matters: accessing EditorStyles or scheduling EditorCoroutines from
         /// a background thread can NRE inside PropertyEditor+Styles..cctor, which under
@@ -65,7 +68,10 @@ namespace McpUnity.Unity
         protected override void OnMessage(MessageEventArgs e)
         {
             string data = e.Data;
-            EditorApplication.delayCall += () => HandleMessageAsync(data);
+            // Use MainThreadDispatcher (EditorApplication.update-based) instead of delayCall
+            // so request handling works even when Unity Editor is not focused.
+            // delayCall is throttled/paused by Unity when it loses application focus.
+            McpUnity.Utils.MainThreadDispatcher.Post(() => HandleMessageAsync(data));
         }
 
         /// <summary>

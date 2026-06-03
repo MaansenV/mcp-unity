@@ -33,8 +33,10 @@ namespace McpUnity.Utils
             CompilationPipeline.compilationFinished += OnCompilationFinished;
             EditorApplication.update += OnEditorUpdate;
 
-            // Check if a compilation finished while we were reloading
-            EditorApplication.delayCall += ProcessPendingAfterReload;
+            // Check if a compilation finished while we were reloading.
+            // Use MainThreadDispatcher (update-based) so this runs even when
+            // Unity Editor is not focused after domain reload.
+            MainThreadDispatcher.Post(ProcessPendingAfterReload);
         }
 
         public static bool HasPendingOperation
