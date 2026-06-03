@@ -102,8 +102,10 @@ namespace McpUnity.Services
 
             _testRunnerApi.Execute(new ExecutionSettings(filter));
 
-            return await WaitForCompletionAsync(
-                McpUnitySettings.Instance.RequestTimeoutSeconds);
+            // Use at least 120 seconds for test execution — tests
+            // (especially PlayMode) can take longer due to domain reloads.
+            int testTimeout = Math.Max(McpUnitySettings.Instance.RequestTimeoutSeconds, 120);
+            return await WaitForCompletionAsync(testTimeout);
         }
         
         /// <summary>
@@ -146,8 +148,9 @@ namespace McpUnity.Services
                 tcs.TrySetResult(tests);
             });
 
-            // Add timeout for test discovery
-            var timeout = TimeSpan.FromSeconds(McpUnitySettings.Instance.RequestTimeoutSeconds);
+            // Add timeout for test discovery. Use at least 30 seconds —
+            // large projects can take a while to enumerate all tests.
+            var timeout = TimeSpan.FromSeconds(Math.Max(McpUnitySettings.Instance.RequestTimeoutSeconds, 30));
             var timeoutTask = Task.Delay(timeout);
             var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
             
