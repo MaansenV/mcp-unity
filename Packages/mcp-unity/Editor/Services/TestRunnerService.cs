@@ -79,6 +79,8 @@ namespace McpUnity.Services
             _returnOnlyFailures = returnOnlyFailures;
             _returnWithLogs = returnWithLogs;
 
+            testFilter = testFilter?.Trim();
+            
             if (!string.IsNullOrEmpty(testFilter))
             {
                 // First try to find matching tests by retrieving the test list
@@ -114,13 +116,12 @@ namespace McpUnity.Services
         {
             var allTests = await RetrieveTestsAsync(testMode);
             var matchingNames = new List<string>();
-            var filterLower = testFilter.ToLowerInvariant();
             
             foreach (var test in allTests)
             {
-                // Match against full name, class name, or method name
-                if (test.FullName.ToLowerInvariant().Contains(filterLower) ||
-                    test.Name.ToLowerInvariant().Contains(filterLower))
+                // Match against full name or short name (case-insensitive)
+                if ((test.FullName?.IndexOf(testFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (test.Name?.IndexOf(testFilter, StringComparison.OrdinalIgnoreCase) >= 0))
                 {
                     matchingNames.Add(test.FullName);
                 }
@@ -134,7 +135,7 @@ namespace McpUnity.Services
         /// </summary>
         /// <param name="mode">The test mode to retrieve tests for (EditMode or PlayMode).</param>
         /// <returns>A task that resolves to a list of ITestAdaptor representing all tests in the given mode.</returns>
-        private Task<List<ITestAdaptor>> RetrieveTestsAsync(TestMode mode)
+        private async Task<List<ITestAdaptor>> RetrieveTestsAsync(TestMode mode)
         {
             var tcs = new TaskCompletionSource<List<ITestAdaptor>>();
             var tests = new List<ITestAdaptor>();
@@ -142,10 +143,21 @@ namespace McpUnity.Services
             _testRunnerApi.RetrieveTestList(mode, adaptor =>
             {
                 CollectTestItems(adaptor, tests);
-                tcs.SetResult(tests);
+                tcs.TrySetResult(tests);
             });
 
-            return tcs.Task;
+            // Add timeout for test discovery
+            var timeout = TimeSpan.FromSeconds(McpUnitySettings.Instance.RequestTimeoutSeconds);
+            var timeoutTask = Task.Delay(timeout);
+            var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+            
+            if (completedTask == timeoutTask)
+            {
+                McpLogger.LogWarning($"Test discovery timed out after {timeout.TotalSeconds}s for mode {mode}");
+                return new List<ITestAdaptor>();
+            }
+            
+            return await tcs.Task;
         }
         
         /// <summary>
