@@ -148,6 +148,11 @@ Packages/packages-lock.json linguist-generated
 *.pdb                   lfs
 *.so                    lfs
 
+# Unity packages need DLLs shipped directly (Git-URL installer can't resolve LFS)
+Packages/**/Editor/Lib/*.dll !lfs
+Packages/**/Plugins/*.dll !lfs
+Packages/**/Runtime/Plugins/*.dll !lfs
+
 # Fonts
 *.otf                   lfs
 *.ttf                   lfs
