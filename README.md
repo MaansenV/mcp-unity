@@ -1,40 +1,26 @@
-# Unity MCP
+# MCP Unity Server (Fork)
 
-Unity MCP is a local Model Context Protocol bridge for controlling the Unity Editor from MCP clients such as OpenCode.
+Fork of MCP Unity for controlling the Unity Editor from MCP clients.
 
-It consists of:
+This repository contains a Unity package at `Packages/mcp-unity`. The package runs a WebSocket bridge inside the Unity Editor and includes a Node.js MCP stdio server in `Server~/`.
 
-- a **Go MCP server** that exposes Unity tools over stdio
-- a **Unity Editor package** that connects to the server over localhost WebSocket and executes editor-safe tool calls on Unity's main thread
+## What this fork changes
 
-```text
-OpenCode / MCP client
-        │ stdio JSON-RPC
-        ▼
-Go MCP server
-        │ localhost WebSocket
-        ▼
-Unity Editor package
-```
-
-## Features
-
-- 80+ Unity Editor tools for scene, GameObject, asset, script, material, prefab, console, editor, and profiler workflows
-- Auto-reconnect WebSocket transport
-- Main-thread dispatch for Unity API calls
-- Unity MCP window with status, tool list, logs, setup, and connected-client visibility
-- Local-only by default
-- No external runtime dependencies beyond Go and Unity
+- Package name: `com.gamelovers.mcp-unity`
+- Fork MCP name: `io.github.maansenv/mcp-unity`
+- Adds Unity object reference resolution in `update_component`
+- Allows wiring `ScriptableObject`, `Component`, and `GameObject` references via:
+  - asset paths
+  - scene paths
+  - instance IDs
 
 ## Requirements
 
-- Unity 6 / 6000.x or newer
-- Go 1.23+
-- An MCP client, for example OpenCode
+- Unity 2022.3 or newer
+- Node.js 18 or newer
+- An MCP client such as OpenCode, Cursor, Windsurf, Claude Code, Codex CLI, GitHub Copilot, Google Antigravity, or another MCP-compatible client
 
-## Install the Unity package
-
-### Option A: Unity Package Manager from Git
+## Install via Unity Package Manager
 
 In Unity:
 
@@ -43,219 +29,122 @@ In Unity:
 3. Enter:
 
 ```text
-https://github.com/MaansenV/EasyMCP-Unity.git?path=unity-plugin
+https://github.com/MaansenV/mcp-unity.git?path=/Packages/mcp-unity
 ```
 
-### Option B: Local package during development
+4. Click **Add**
 
-Add this to your Unity project's `Packages/manifest.json`:
+> Use the URL above for this fork. The repository root is a Unity project, so the `?path=/Packages/mcp-unity` suffix is required for Unity Package Manager.
+
+## Install locally during development
+
+This repository already uses the package locally:
 
 ```json
 {
   "dependencies": {
-    "com.unity-mcp.editor": "file:../path/to/unity-mcp/unity-plugin"
+    "com.gamelovers.mcp-unity": "file:mcp-unity"
   }
 }
 ```
 
-Or copy `unity-plugin/` into your project's `Packages/com.unity-mcp.editor/` folder.
+For another Unity project, either add the package from the Git URL above or copy/link `Packages/mcp-unity` into that project's `Packages/` folder.
 
-## Recommended setup for OpenCode
+## Unity setup
 
-For OpenCode, you usually do **not** need to edit `opencode.json` manually. The Unity package includes a setup workflow that can build the server and configure OpenCode for you.
+1. Install the package.
+2. Open **Tools → MCP Unity → Server Window** in Unity.
+3. Use the window to install/build the Node server and configure your MCP client.
 
-1. Install the Unity package.
-2. Open **Window → Unity MCP**.
-3. Go to the **Setup** tab.
-4. Click **Run One-Click Setup**.
+Default Unity bridge settings:
 
-The setup workflow will:
-
-- validate Unity MCP settings
-- check that Go 1.23+ is installed
-- build the Go MCP server binary
-- export a project-local `opencode.json`
-- merge the Unity MCP entry into the global OpenCode config at `~/.config/opencode/opencode.json`
-- preserve existing OpenCode settings, agents, providers, and other MCP servers
-- start the local MCP/WebSocket server
-- run a health check
-- let Unity connect its WebSocket client automatically
-
-You can also run the Setup-tab steps individually:
-
-- **Check** Go Installation
-- **Build** Server Binary
-- **Configure** OpenCode Config
-
-After setup, restart OpenCode or reload its MCP servers. In the Unity MCP window, use **Reconnect** if the status is not connected.
+- WebSocket endpoint: `ws://localhost:8090/McpUnity`
+- Settings file: `ProjectSettings/McpUnitySettings.json`
+- Remote connections: disabled by default
 
 ## Manual server build
 
-Use this only if you do not want to use the Unity MCP Setup tab or if you are developing the server itself.
-
-From the repository root:
+Only needed if you are developing/debugging the MCP server manually.
 
 ```bash
-cd server
-go build -o bin/unity-mcp ./cmd/unity-mcp
+cd Packages/mcp-unity/Server~
+npm install
+npm run build
 ```
 
-On Windows:
-
-```powershell
-cd server
-go build -o bin/unity-mcp.exe ./cmd/unity-mcp
-```
-
-The binary is intentionally ignored by git. Build it locally or publish release artifacts separately.
-
-## Manual OpenCode configuration
-
-This is a fallback for non-Unity setup flows. For normal OpenCode usage, prefer **Window → Unity MCP → Setup → Run One-Click Setup**.
-
-Copy `opencode.example.json` or add the MCP entry to your existing OpenCode config manually.
-
-Linux/macOS example:
-
-```json
-{
-  "mcp": {
-    "unity": {
-      "type": "local",
-      "command": ["/absolute/path/to/unity-mcp/server/bin/unity-mcp"],
-      "enabled": true,
-      "environment": {
-        "UNITY_MCP_WS_HOST": "127.0.0.1",
-        "UNITY_MCP_WS_PORT": "8081",
-        "UNITY_MCP_WS_PATH": "/ws"
-      },
-      "timeout": 30000
-    }
-  }
-}
-```
-
-Windows example:
-
-```json
-{
-  "mcp": {
-    "unity": {
-      "type": "local",
-      "command": ["C:/path/to/unity-mcp/server/bin/unity-mcp.exe"],
-      "enabled": true,
-      "environment": {
-        "UNITY_MCP_WS_HOST": "127.0.0.1",
-        "UNITY_MCP_WS_PORT": "8081",
-        "UNITY_MCP_WS_PATH": "/ws"
-      },
-      "timeout": 30000
-    }
-  }
-}
-```
-
-## Start using it
-
-1. Open your Unity project.
-2. Open **Window → Unity MCP**.
-3. Build/configure the Go server as above.
-4. Start or restart your MCP client.
-5. In the Unity MCP window, use **Reconnect** if the status is not connected.
-
-The window should show:
-
-- WebSocket connection status
-- Unity MCP bridge peer
-- active MCP/stdio clients such as OpenCode after tool calls
-- all registered Unity MCP tools from the live Unity registry
-
-## Tool groups
-
-The server exposes tools in these groups:
-
-- `unity.scene.*` — scene list/open/save/create/hierarchy/find
-- `unity.gameobject.*` — create/delete/rename/find/components/transform/parent/duplicate
-- `unity.asset.*` — find/info/import/delete/move/copy/folder/refresh/dependencies/GUID lookup
-- `unity.script.*` — create/update/delete/read/compile status/errors
-- `unity.material.*` — create/copy/get/set shader properties
-- `unity.shader.*` — find shaders and inspect properties
-- `unity.prefab.*` — create/instantiate/open/save/apply/revert/get info
-- `unity.console.*` — logs/count/clear/subscribe
-- `unity.editor.*` — state/play/stop/pause/selection/menu/undo/redo
-- `unity.profiler.*` — start/stop/status/memory/rendering/script samples/modules/save/load/clear
-
-## Development
+The MCP server entrypoint is:
 
 ```text
-unity-mcp/
-├── server/          Go MCP server
-│   ├── cmd/         CLI entrypoint
-│   ├── internal/    MCP, websocket, config internals
-│   └── third_party/ vendored minimal dependencies
-├── unity-plugin/    Unity package
-│   ├── Editor/      editor window, transport, tools
-│   └── Runtime/     shared protocol types
-└── opencode.example.json
+Packages/mcp-unity/Server~/build/index.js
 ```
 
-### Add a Unity tool
+## Manual MCP client configuration
 
-1. Add an `IToolHandler` class under `unity-plugin/Editor/Tools/<Group>/`.
-2. Annotate it with `[McpTool("unity.group.name", "Description")]`.
-3. Use `MainThreadDispatcher.EnqueueAsync(...)` for Unity API calls.
-4. Add the matching Go tool definition in `server/internal/mcp/tools.go`.
-5. Build the server and let Unity recompile the package.
+Prefer the Unity server window configuration when possible. For manual setup, point your MCP client at Node and the built server entrypoint.
 
-Minimal example:
+Example:
 
-```csharp
-[McpTool("unity.example.ping", "Ping Unity")]
-public sealed class PingTool : IToolHandler
+```json
 {
-    public Task<object?> ExecuteAsync(ToolContext context)
-    {
-        return MainThreadDispatcher.EnqueueAsync<object?>(() => new
-        {
-            success = true,
-            message = "pong"
-        });
+  "mcp": {
+    "mcp-unity": {
+      "type": "local",
+      "command": [
+        "node",
+        "ABSOLUTE/PATH/TO/Packages/mcp-unity/Server~/build/index.js"
+      ],
+      "enabled": true
     }
+  }
 }
 ```
 
-## Security notes
+## Development layout
 
-This bridge can create, modify, and delete Unity assets and scene objects. Treat it like local developer tooling with editor-level permissions.
+```text
+Packages/mcp-unity/
+├── Editor/                       Unity Editor package code
+│   ├── Tools/                    Unity-side MCP tool handlers
+│   ├── Resources/                Unity-side MCP resources
+│   ├── UnityBridge/              WebSocket server and editor window
+│   ├── Services/                 Shared editor services
+│   └── Utils/                    Helpers and client config utilities
+├── Runtime/                      Shared runtime/protocol code
+├── Server~/                      Node.js MCP stdio server
+│   ├── src/index.ts              Registers MCP tools/resources/prompts
+│   ├── src/tools/                Node-side MCP tool definitions
+│   ├── src/resources/            Node-side MCP resources
+│   └── src/unity/mcpUnity.ts      WebSocket client to Unity
+├── package.json                  Unity package manifest
+└── server.json                   MCP registry metadata
+```
 
-Defaults are local-only:
+## Add a tool
 
-- WebSocket host: `127.0.0.1`
-- WebSocket path: `/ws`
-- optional bearer-token auth via package settings/environment
+1. Add a Unity tool under `Packages/mcp-unity/Editor/Tools/`.
+2. Register it in `Editor/UnityBridge/McpUnityServer.cs`.
+3. Add the matching Node tool under `Packages/mcp-unity/Server~/src/tools/`.
+4. Register it in `Server~/src/index.ts`.
+5. Build the Node server:
 
-Do not expose the WebSocket port to untrusted networks.
+```bash
+cd Packages/mcp-unity/Server~
+npm run build
+```
+
+Tool names must match exactly between Node and Unity.
 
 ## Troubleshooting
 
-### No Unity clients are connected
+- If Unity cannot connect, check that the server window is open and the bridge is listening on port `8090`.
+- If a tool returns `unknown_method`, verify that the Node tool name matches the Unity tool `Name` exactly.
+- If package installation fails, make sure the Git URL includes `?path=/Packages/mcp-unity`.
+- If Node is not found, install Node.js 18+ and make sure `node`/`npm` are available on `PATH`.
 
-- Make sure Unity is open.
-- Open **Window → Unity MCP** and click **Reconnect**.
-- Check that OpenCode and Unity use the same port/path, usually `127.0.0.1:8081/ws`.
+## Original project
 
-### Tools time out
+This fork is based on MCP Unity by CoderGamester:
 
-- Check the Unity Console for compile errors.
-- Restart the MCP server binary after rebuilding it.
-- Avoid running many Unity-mutating tools in parallel.
-
-### OpenCode is not visible in the Unity MCP window
-
-- Rebuild and restart the Go MCP server.
-- Trigger any Unity MCP tool call from OpenCode.
-- The client entry appears after the server sends a `mcp/client_seen` notification.
-
-## License
-
-MIT
+```text
+https://github.com/CoderGamester/mcp-unity
+```

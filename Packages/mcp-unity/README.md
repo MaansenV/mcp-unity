@@ -356,7 +356,7 @@ Installing this MCP Unity Server is a multi-step process:
 1. Open the Unity Package Manager (Window > Package Manager)
 2. Click the "+" button in the top-left corner
 3. Select "Add package from git URL..."
-4. Enter: `https://github.com/MaansenV/mcp-unity.git`
+4. Enter: `https://github.com/MaansenV/mcp-unity.git?path=/Packages/mcp-unity`
 5. Click "Add"
 
 ![package manager](https://github.com/user-attachments/assets/a72bfca4-ae52-48e7-a876-e99c701b0497)
