@@ -119,6 +119,12 @@ Packages/mcp-unity/
 └── server.json                   MCP registry metadata
 ```
 
+## Documentation
+
+- [Tools & Resources reference](docs/TOOLS.md) – full list of all 68 MCP tools, 7 resources, and 1 prompt, grouped by category with anchor links.
+- [Package AGENTS guide](Packages/mcp-unity/AGENTS.md) – bridge contract, defaults, debugging, and how to add new capabilities.
+- [Package README](Packages/mcp-unity/README.md) – end-user docs and screenshots.
+
 ## Add a tool
 
 1. Add a Unity tool under `Packages/mcp-unity/Editor/Tools/`.
