@@ -519,6 +519,10 @@ namespace McpUnity.Unity
             ProfilerGetMemoryStatsTool profilerGetMemoryStatsTool = new ProfilerGetMemoryStatsTool();
             _tools.Add(profilerGetMemoryStatsTool.Name, profilerGetMemoryStatsTool);
 
+            // Register Profiler frame capture tool
+            ProfilerCaptureFrameTool profilerCaptureFrameTool = new ProfilerCaptureFrameTool();
+            _tools.Add(profilerCaptureFrameTool.Name, profilerCaptureFrameTool);
+
             // Register Reflection tools
             ReflectionMethodFindTool reflectionMethodFindTool = new ReflectionMethodFindTool();
             _tools.Add(reflectionMethodFindTool.Name, reflectionMethodFindTool);

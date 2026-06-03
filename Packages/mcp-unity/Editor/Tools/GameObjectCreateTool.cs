@@ -133,6 +133,9 @@ namespace McpUnity.Tools
 
                 McpLogger.LogInfo($"Created GameObject '{createdObject.name}' with instance ID {createdObject.GetInstanceID()}");
 
+                SceneView.RepaintAll();
+                UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+
                 return new JObject
                 {
                     ["success"] = true,

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using McpUnity.Unity;
 using McpUnity.Utils;
@@ -9,14 +10,16 @@ using Newtonsoft.Json.Linq;
 namespace McpUnity.Tools
 {
     /// <summary>
-    /// Tool for selecting GameObjects in the Unity Editor
+    /// Tool for selecting one or more objects in the Unity Editor.
+    /// Supports selection by path, name, instance ID, or multiple paths,
+    /// with optional additive selection and scene framing.
     /// </summary>
     public class SelectGameObjectTool : McpToolBase
     {
         public SelectGameObjectTool()
         {
             Name = "select_gameobject";
-            Description = "Sets the selected GameObject in the Unity editor by path, name or instance ID";
+            Description = "Sets the selected object(s) in the Unity editor by path, name, instance ID, or array of paths. Supports additive selection and framing.";
         }
         
         /// <summary>
@@ -25,50 +28,82 @@ namespace McpUnity.Tools
         /// <param name="parameters">Tool parameters as a JObject</param>
         public override JObject Execute(JObject parameters)
         {
-            // Extract parameters
             string objectPath = parameters["objectPath"]?.ToObject<string>();
             string objectName = parameters["objectName"]?.ToObject<string>();
             int? instanceId = parameters["instanceId"]?.ToObject<int?>();
-            GameObject selectedGameObject = null;
-            
-            // Validate parameters - require either objectPath or instanceId
-            if (string.IsNullOrEmpty(objectPath) && string.IsNullOrEmpty(objectName) && !instanceId.HasValue)
+            bool additive = parameters["additive"]?.ToObject<bool>() ?? false;
+            bool frame = parameters["frame"]?.ToObject<bool>() ?? false;
+            JArray objectPathsArray = parameters["objectPaths"] as JArray;
+
+            var selectedObjects = new System.Collections.Generic.List<UnityEngine.Object>();
+
+            if (objectPathsArray != null)
             {
-                return McpUnitySocketHandler.CreateErrorResponse(
-                    "Required parameter 'objectPath', 'objectName' or 'instanceId' not provided", 
-                    "validation_error"
-                );
+                foreach (var item in objectPathsArray)
+                {
+                    var path = item.ToObject<string>();
+                    var go = GameObject.Find(path);
+                    if (go != null) selectedObjects.Add(go);
+                }
             }
-            
-            // First try to find by instance ID if provided
-            if (instanceId.HasValue)
+            else if (instanceId.HasValue)
             {
-                selectedGameObject = EditorUtility.InstanceIDToObject(instanceId.Value) as GameObject;
+                var obj = EditorUtility.InstanceIDToObject(instanceId.Value);
+                if (obj != null) selectedObjects.Add(obj);
             }
             else if (!string.IsNullOrEmpty(objectPath))
             {
-                // Try to find the object by path in the hierarchy
-                selectedGameObject = GameObject.Find(objectPath);
+                var go = GameObject.Find(objectPath);
+                if (go != null) selectedObjects.Add(go);
+            }
+            else if (!string.IsNullOrEmpty(objectName))
+            {
+                var go = GameObject.Find(objectName);
+                if (go != null) selectedObjects.Add(go);
             }
             else
             {
-                // Try to find the object by name in the hierarchy
-                selectedGameObject = GameObject.Find(objectName);
+                return McpUnitySocketHandler.CreateErrorResponse(
+                    ToolErrors.InvalidInput("Use 'objectPath', 'objectName', 'instanceId', or 'objectPaths'."),
+                    "validation_error"
+                );
             }
-            
-            Selection.activeGameObject = selectedGameObject;
 
-            // Ping the selected object
-            EditorGUIUtility.PingObject(selectedGameObject);
-            
-            McpLogger.LogInfo($"[MCP Unity] Selected GameObject: {selectedGameObject?.name}");
-            
-            // Create the response
+            if (selectedObjects.Count == 0)
+            {
+                return McpUnitySocketHandler.CreateErrorResponse(
+                    ToolErrors.NotFound("GameObject"), "not_found"
+                );
+            }
+
+            if (additive && Selection.objects.Length > 0)
+            {
+                var combined = new System.Collections.Generic.List<UnityEngine.Object>(Selection.objects);
+                combined.AddRange(selectedObjects);
+                Selection.objects = combined.ToArray();
+            }
+            else
+            {
+                Selection.objects = selectedObjects.ToArray();
+            }
+
+            Selection.activeObject = selectedObjects[0];
+            EditorGUIUtility.PingObject(selectedObjects[0]);
+
+            if (frame && SceneView.lastActiveSceneView != null)
+            {
+                SceneView.lastActiveSceneView.FrameSelected();
+            }
+
+            SceneView.RepaintAll();
+
             return new JObject
             {
                 ["success"] = true,
                 ["type"] = "text",
-                ["message"] = $"Successfully selected GameObject {selectedGameObject?.name}"
+                ["message"] = $"Selected {selectedObjects.Count} object(s): {string.Join(", ", selectedObjects.Select(o => o.name))}",
+                ["count"] = selectedObjects.Count,
+                ["names"] = new JArray(selectedObjects.Select(o => o.name))
             };
         }
     }

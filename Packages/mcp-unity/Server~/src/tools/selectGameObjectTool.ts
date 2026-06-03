@@ -7,11 +7,14 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 // Constants for the tool
 const toolName = 'select_gameobject';
-const toolDescription = 'Sets the selected GameObject in the Unity editor by path, name or instance ID';
+const toolDescription = 'Sets the selected object(s) in the Unity editor by path, name, instance ID, or array of paths. Supports additive selection and framing.';
 const paramsSchema = z.object({
   objectPath: z.string().optional().describe('The path or name of the GameObject to select (e.g. "Main Camera")'),
   objectName: z.string().optional().describe('The name of the GameObject to select'),
-  instanceId: z.number().optional().describe('The instance ID of the GameObject to select')
+  instanceId: z.number().optional().describe('The instance ID of the GameObject to select'),
+  objectPaths: z.array(z.string()).optional().describe('Array of GameObject paths to select'),
+  additive: z.boolean().optional().default(false).describe('Whether to add to current selection'),
+  frame: z.boolean().optional().default(false).describe('Whether to frame the selected object(s) in Scene view')
 });
 
 /**
@@ -54,10 +57,15 @@ export function registerSelectGameObjectTool(server: McpServer, mcpUnity: McpUni
  */
 async function toolHandler(mcpUnity: McpUnity, params: any): Promise<CallToolResult> {
   // Custom validation since we can't use refine/superRefine while maintaining ZodObject type
-  if (params.objectPath === undefined && params.objectName === undefined && params.instanceId === undefined) {
+  if (
+    params.objectPath === undefined &&
+    params.objectName === undefined &&
+    params.instanceId === undefined &&
+    params.objectPaths === undefined
+  ) {
     throw new McpUnityError(
       ErrorType.VALIDATION,
-      "Either 'objectPath', 'objectName' or 'instanceId' must be provided"
+      "Either 'objectPath', 'objectName', 'instanceId' or 'objectPaths' must be provided"
     );
   }
   

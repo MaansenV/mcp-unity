@@ -56,6 +56,7 @@ import { registerProfilerStartTool } from './tools/profilerStartTool.js';
 import { registerProfilerStopTool } from './tools/profilerStopTool.js';
 import { registerProfilerGetStatusTool } from './tools/profilerGetStatusTool.js';
 import { registerProfilerGetMemoryStatsTool } from './tools/profilerGetMemoryStatsTool.js';
+import { registerProfilerCaptureFrameTool } from './tools/profilerCaptureFrameTool.js';
 import { registerReflectionMethodFindTool } from './tools/reflectionMethodFindTool.js';
 import { registerReflectionMethodCallTool } from './tools/reflectionMethodCallTool.js';
 import { registerTypeGetJsonSchemaTool } from './tools/typeGetJsonSchemaTool.js';
@@ -171,6 +172,7 @@ registerProfilerStartTool(server, mcpUnity, toolLogger);
 registerProfilerStopTool(server, mcpUnity, toolLogger);
 registerProfilerGetStatusTool(server, mcpUnity, toolLogger);
 registerProfilerGetMemoryStatsTool(server, mcpUnity, toolLogger);
+registerProfilerCaptureFrameTool(server, mcpUnity, toolLogger);
 
 // Register Reflection tools
 registerReflectionMethodFindTool(server, mcpUnity, toolLogger);
