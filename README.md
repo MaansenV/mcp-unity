@@ -235,15 +235,6 @@ Tool names must match **exactly** between Node and Unity.
 
 ---
 
-## Original projects
-
-This fork builds on work by:
-
-- [CoderGamester/mcp-unity](https://github.com/CoderGamester/mcp-unity) — original MCP Unity implementation
-- [IvanMurzak/Unity-MCP](https://github.com/IvanMurzak/Unity-MCP) — reference for `EditorApplication.update`-based dispatch pattern and editor control features
-
----
-
 ## License
 
 MIT — see [LICENSE](LICENSE)
