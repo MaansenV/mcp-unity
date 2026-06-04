@@ -339,6 +339,10 @@ namespace McpUnity.Unity
             RunTestsTool runTestsTool = new RunTestsTool(_testRunnerService);
             _tools.Add(runTestsTool.Name, runTestsTool);
             
+            // Register GetTestJobStatusTool
+            GetTestJobStatusTool getTestJobStatusTool = new GetTestJobStatusTool(_testRunnerService);
+            _tools.Add(getTestJobStatusTool.Name, getTestJobStatusTool);
+            
             // Register SendConsoleLogTool
             SendConsoleLogTool sendConsoleLogTool = new SendConsoleLogTool();
             _tools.Add(sendConsoleLogTool.Name, sendConsoleLogTool);

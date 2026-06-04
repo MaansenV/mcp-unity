@@ -1,10 +1,8 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using McpUnity.Unity;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using UnityEditor.TestTools.TestRunner.Api;
 using McpUnity.Services;
 using McpUnity.Utils;
@@ -12,7 +10,9 @@ using McpUnity.Utils;
 namespace McpUnity.Tools
 {
     /// <summary>
-    /// Tool for running Unity Test Runner tests
+    /// Tool for running Unity Test Runner tests.
+    /// All test runs are started as persistent jobs via StartTestJob.
+    /// Use get_test_job_status to poll for results.
     /// </summary>
     public class RunTestsTool : McpToolBase
     {
@@ -21,35 +21,32 @@ namespace McpUnity.Tools
         public RunTestsTool(ITestRunnerService testRunnerService)
         {
             Name = "run_tests";
-            Description = "Runs tests using Unity's Test Runner";
+            Description = "Runs tests using Unity's Test Runner. Starts a persistent job and returns immediately with a jobId. Use get_test_job_status to poll for results.";
             IsAsync = true;
             _testRunnerService = testRunnerService;
         }
-        
+
         /// <summary>
-        /// Executes the RunTests tool asynchronously on the main thread.
+        /// Executes the RunTests tool. Always starts a job and returns jobId immediately.
         /// </summary>
-        /// <param name="parameters">Tool parameters, including optional 'testMode' and 'testFilter'.</param>
-        /// <param name="tcs">TaskCompletionSource to set the result or exception.</param>
-        public override async void ExecuteAsync(JObject parameters, TaskCompletionSource<JObject> tcs)
+        public override void ExecuteAsync(JObject parameters, TaskCompletionSource<JObject> tcs)
         {
             // Parse parameters
             string testModeStr = parameters?["testMode"]?.ToObject<string>() ?? "EditMode";
-            string testFilter = parameters?["testFilter"]?.ToObject<string>(); // Optional
-            bool returnOnlyFailures = parameters?["returnOnlyFailures"]?.ToObject<bool>() ?? false; // Optional
-            bool returnWithLogs = parameters?["returnWithLogs"]?.ToObject<bool>() ?? false; // Optional
+            string testFilter = parameters?["testFilter"]?.ToObject<string>();
+            bool returnOnlyFailures = parameters?["returnOnlyFailures"]?.ToObject<bool>() ?? false;
+            bool returnWithLogs = parameters?["returnWithLogs"]?.ToObject<bool>() ?? false;
 
             TestMode testMode = TestMode.EditMode;
-            
             if (Enum.TryParse(testModeStr, true, out TestMode parsedMode))
             {
                 testMode = parsedMode;
             }
 
-            McpLogger.LogInfo($"Executing RunTestsTool: Mode={testMode}, Filter={testFilter ?? "(none)"}");
+            McpLogger.LogInfo($"RunTestsTool: Starting job. Mode={testMode}, Filter={testFilter ?? "(none)"}");
 
-            // Call the service to run tests
-            JObject result = await _testRunnerService.ExecuteTestsAsync(testMode, returnOnlyFailures, returnWithLogs, testFilter);
+            // Start a persistent job - returns immediately with jobId
+            JObject result = _testRunnerService.StartTestJob(testMode, returnOnlyFailures, returnWithLogs, testFilter);
             tcs.SetResult(result);
         }
     }
