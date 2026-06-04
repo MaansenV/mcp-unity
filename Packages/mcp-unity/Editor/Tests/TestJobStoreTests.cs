@@ -2,6 +2,7 @@ using NUnit.Framework;
 using McpUnity.Services;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using UnityEngine;
 
 namespace McpUnity.Tests
 {
