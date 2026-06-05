@@ -271,15 +271,11 @@ namespace McpUnity.Unity
             
             EditorGUILayout.Space();
             
-            ShowConfigButton("Cursor", McpUtils.AddToCursorConfig);
-
-            EditorGUILayout.Space();
-
             ShowConfigButton("Cursor (Project)", McpUtils.AddToCursorProjectConfig);
 
             EditorGUILayout.Space();
 
-            ShowConfigButton("Claude Code", McpUtils.AddToClaudeCodeConfig);
+            ShowConfigButton("Cursor (Global)", McpUtils.AddToCursorConfig);
 
             EditorGUILayout.Space();
 
@@ -287,11 +283,11 @@ namespace McpUnity.Unity
 
             EditorGUILayout.Space();
 
-            ShowConfigButton("GitHub Copilot", McpUtils.AddToGitHubCopilotConfig);
+            ShowConfigButton("Claude Code (Global)", McpUtils.AddToClaudeCodeConfig);
 
             EditorGUILayout.Space();
 
-            ShowConfigButton("Codex CLI", McpUtils.AddToCodexCliConfig);
+            ShowConfigButton("GitHub Copilot", McpUtils.AddToGitHubCopilotConfig);
 
             EditorGUILayout.Space();
 
@@ -299,6 +295,10 @@ namespace McpUnity.Unity
                 "Codex CLI (Project)",
                 McpUtils.AddToCodexCliProjectConfig,
                 "Codex only loads this project config after you mark the project as trusted. The first time you run `codex` from this project's root, approve the trust prompt.");
+
+            EditorGUILayout.Space();
+
+            ShowConfigButton("Codex CLI (Global)", McpUtils.AddToCodexCliConfig);
 
             EditorGUILayout.Space();
 
