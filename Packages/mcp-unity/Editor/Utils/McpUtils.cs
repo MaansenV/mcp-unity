@@ -335,6 +335,16 @@ namespace McpUnity.Utils
         }
 
         /// <summary>
+        /// Adds the MCP configuration to the global OpenCode config file.
+        /// Uses an absolute path. Applies to all projects on your machine.
+        /// </summary>
+        public static bool AddToOpenCodeGlobalConfig(bool useTabsIndentation)
+        {
+            string configFilePath = GetOpenCodeGlobalConfigPath();
+            return AddToOpenCodeConfigFile(configFilePath, useTabsIndentation, PathMode.Absolute);
+        }
+
+        /// <summary>
         /// Adds the MCP configuration to the project-local Cursor config (<ProjectRoot>/.cursor/mcp.json).
         /// Uses a project-relative path so the config is portable across machines when committed to git.
         /// </summary>
@@ -373,17 +383,21 @@ namespace McpUnity.Utils
             {
                 case "Claude Code":
                 case "Claude Code (Project)":
+                case "Claude Code (Global)":
                 case "Codex CLI":
                 case "Codex CLI (Project)":
+                case "Codex CLI (Global)":
                 case "Cursor (Project)":
+                case "Cursor (Global)":
                 case "GitHub Copilot":
                 case "OpenCode":
+                case "OpenCode (Project)":
+                case "OpenCode (Global)":
                     return Application.platform == RuntimePlatform.WindowsEditor
                         || Application.platform == RuntimePlatform.OSXEditor
                         || Application.platform == RuntimePlatform.LinuxEditor;
                 case "Windsurf":
                 case "Claude Desktop":
-                case "Cursor":
                 case "Google Antigravity":
                     return Application.platform == RuntimePlatform.WindowsEditor
                         || Application.platform == RuntimePlatform.OSXEditor;
@@ -404,7 +418,7 @@ namespace McpUnity.Utils
 
             if (Application.platform == RuntimePlatform.LinuxEditor)
             {
-                return $"Automatic {productName} configuration is currently available on Linux only for Claude Code, Codex CLI, Cursor (Project), GitHub Copilot, and OpenCode.";
+                return $"Automatic {productName} configuration is currently available on Linux only for Claude Code, Codex CLI, Cursor (Project/Global), GitHub Copilot, and OpenCode (Project/Global).";
             }
 
             return $"Automatic {productName} configuration is not supported on {Application.platform}.";
@@ -620,6 +634,42 @@ namespace McpUnity.Utils
         {
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
             return Path.Combine(projectRoot, "opencode.json");
+        }
+
+        /// <summary>
+        /// Gets the path to the global OpenCode config file.
+        /// Windows: %APPDATA%\opencode\opencode.json
+        /// macOS/Linux: ~/.config/opencode/opencode.json
+        /// </summary>
+        /// <returns>The path to the global OpenCode config file</returns>
+        private static string GetOpenCodeGlobalConfigPath()
+        {
+            string basePath;
+
+            if (Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                // Windows: %APPDATA%\opencode
+                basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "opencode");
+            }
+            else if (Application.platform == RuntimePlatform.OSXEditor)
+            {
+                // macOS: ~/.config/opencode
+                string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                basePath = Path.Combine(homeDir, ".config", "opencode");
+            }
+            else if (Application.platform == RuntimePlatform.LinuxEditor)
+            {
+                // Linux: ~/.config/opencode (XDG_CONFIG_HOME)
+                string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                basePath = Path.Combine(homeDir, ".config", "opencode");
+            }
+            else
+            {
+                Debug.LogError("Unsupported platform for OpenCode global config");
+                return null;
+            }
+
+            return Path.Combine(basePath, "opencode.json");
         }
 
         /// <summary>

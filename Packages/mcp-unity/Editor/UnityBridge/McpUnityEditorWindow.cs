@@ -306,7 +306,11 @@ namespace McpUnity.Unity
 
             EditorGUILayout.Space();
 
-            ShowConfigButton("OpenCode", McpUtils.AddToOpenCodeConfig);
+            ShowConfigButton("OpenCode (Project)", McpUtils.AddToOpenCodeConfig);
+
+            EditorGUILayout.Space();
+
+            ShowConfigButton("OpenCode (Global)", McpUtils.AddToOpenCodeGlobalConfig);
 
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
