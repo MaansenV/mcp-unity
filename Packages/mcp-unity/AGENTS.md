@@ -180,6 +180,9 @@ Node reads config from `../ProjectSettings/McpUnitySettings.json` relative to **
 - `profiler_stop` — Disable Unity Profiler
 - `profiler_get_status` — Get profiler status and memory
 - `profiler_get_memory_stats` — Get detailed memory statistics
+- `profiler_status` — Get comprehensive profiler history status (active provider, frame range, capabilities)
+- `profiler_enable_recording` — Enable/disable Unity Profiler recording
+- `profiler_get_selected_frame` — Get the currently selected frame in Unity Profiler window
 - `reflection_method_find` — Search methods across assemblies
 - `reflection_method_call` — Invoke methods via reflection
 - `type_get_json_schema` — Generate JSON schema for Unity types

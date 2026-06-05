@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using Newtonsoft.Json.Linq;
 using McpUnity.Unity;
 using McpUnity.Utils;
@@ -61,6 +62,7 @@ namespace McpUnity.Tools
                 List<JObject> results = new List<JObject>();
                 int matchCount = 0;
 
+                // Search in loaded scenes
                 for (int sceneIndex = 0; sceneIndex < SceneManager.sceneCount; sceneIndex++)
                 {
                     Scene scene = SceneManager.GetSceneAt(sceneIndex);
@@ -73,6 +75,17 @@ namespace McpUnity.Tools
                     foreach (GameObject rootObject in rootObjects)
                     {
                         TraverseGameObject(rootObject, scene.name, name, tag, resolvedComponentType, results, ref matchCount, maxResults);
+                    }
+                }
+
+                // Search in Prefab Stage if open
+                PrefabStage prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+                if (prefabStage != null)
+                {
+                    GameObject prefabRoot = prefabStage.prefabContentsRoot;
+                    if (prefabRoot != null)
+                    {
+                        TraverseGameObject(prefabRoot, "PrefabStage", name, tag, resolvedComponentType, results, ref matchCount, maxResults);
                     }
                 }
 

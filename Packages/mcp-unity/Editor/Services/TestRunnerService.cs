@@ -20,7 +20,7 @@ namespace McpUnity.Services
     /// All test runs are managed as persistent jobs via TestJobStore.
     /// This ensures test results survive Domain Reload and WebSocket disconnects.
     /// </summary>
-    public class TestRunnerService : ITestRunnerService, ICallbacks
+    public class TestRunnerService : ITestRunnerService, ICallbacks, IDisposable
     {
         private readonly TestRunnerApi _testRunnerApi;
         private readonly TestJobStore _jobStore;
@@ -50,15 +50,67 @@ namespace McpUnity.Services
 
         /// <summary>
         /// After Domain Reload, check if there was an active job that needs to be resumed.
+        /// Handles both running PlayMode jobs (restore callbacks) and pending jobs (restart or fail).
         /// </summary>
         private void RestoreActiveJobIfNeeded()
         {
-            var activeJob = _jobStore.GetActivePlayModeJob();
+            var activeJob = _jobStore.GetActiveJob();
             if (activeJob != null)
             {
                 _activeJobId = activeJob.JobId;
                 _activeMode = activeJob.TestMode == "PlayMode" ? TestMode.PlayMode : TestMode.EditMode;
-                McpLogger.LogInfo($"Restored active test job after reload: {_activeJobId} ({activeJob.TestMode})");
+                McpLogger.LogInfo($"Restored active test job after reload: {_activeJobId} ({activeJob.TestMode}, status={activeJob.Status})");
+
+                // If job was pending (never started), restart it
+                if (activeJob.Status == "pending")
+                {
+                    McpLogger.LogInfo($"Restarting pending job {_activeJobId} after domain reload");
+                    RestartPendingJob(_activeJobId);
+                }
+                // If job was running and is PlayMode, callbacks will be received by this new instance
+                // If job was running and is EditMode, it likely completed before reload (EditMode doesn't trigger reload)
+            }
+        }
+
+        /// <summary>
+        /// Restart a pending job that was scheduled but not executed before domain reload.
+        /// </summary>
+        private void RestartPendingJob(string jobId)
+        {
+            var job = _jobStore.Get(jobId);
+            if (job == null || job.Status != "pending")
+                return;
+
+            // Re-schedule execution with double-defer to let WebSocket response flush
+            MainThreadDispatcher.PostAfterUpdatesAsync(2, async () =>
+            {
+                try
+                {
+                    await ExecuteJobInternal(jobId);
+                }
+                catch (Exception ex)
+                {
+                    McpLogger.LogError($"Test job {jobId} failed with exception: {ex.Message}");
+                    _jobStore.Fail(jobId, ex.Message, "job_execution_exception");
+                }
+            });
+        }
+
+        /// <summary>
+        /// Clean up TestRunnerApi callbacks.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_testRunnerApi != null)
+            {
+                try
+                {
+                    _testRunnerApi.UnregisterCallbacks(this);
+                }
+                catch (Exception ex)
+                {
+                    McpLogger.LogWarning($"Error unregistering TestRunner callbacks: {ex.Message}");
+                }
             }
         }
 
@@ -91,7 +143,7 @@ namespace McpUnity.Services
 
         /// <summary>
         /// Starts a persistent test job for both EditMode and PlayMode.
-        /// Returns immediately with a jobId. The actual test run is deferred via delayCall.
+        /// Returns immediately with a jobId. The actual test run is deferred via MainThreadDispatcher.
         /// This prevents WebSocket disconnects during test execution.
         /// </summary>
         public JObject StartTestJob(TestMode testMode, bool returnOnlyFailures, bool returnWithLogs, string testFilter)
@@ -110,14 +162,14 @@ namespace McpUnity.Services
                     "editor_busy_updating");
             }
 
-            // Check for existing active job
-            var existingActive = _jobStore.GetActivePlayModeJob();
+            // Check for existing active job (any mode)
+            var existingActive = _jobStore.GetActiveJob();
             if (existingActive != null)
             {
                 return new JObject
                 {
                     ["success"] = false,
-                    ["message"] = $"A test job is already active: {existingActive.JobId} ({existingActive.Status})",
+                    ["message"] = $"A test job is already active: {existingActive.JobId} ({existingActive.TestMode}, {existingActive.Status})",
                     ["jobId"] = existingActive.JobId,
                     ["status"] = existingActive.Status
                 };
@@ -142,24 +194,23 @@ namespace McpUnity.Services
             McpLogger.LogInfo($"Starting test job {job.JobId}: Mode={testMode}, Filter={testFilter ?? "(none)"}");
 
             // Defer actual execution to let the WebSocket response flush first.
-            // Double delayCall ensures the response is sent before Unity potentially
+            // Double defer (2 editor updates) ensures the response is sent before Unity potentially
             // triggers assembly reload or other disruptive operations.
+            // Uses MainThreadDispatcher (EditorApplication.update-based) instead of delayCall
+            // so it works even when Unity Editor is not focused.
             string jobId = job.JobId;
-            EditorApplication.delayCall += () =>
+            MainThreadDispatcher.PostAfterUpdatesAsync(2, async () =>
             {
-                EditorApplication.delayCall += async () =>
+                try
                 {
-                    try
-                    {
-                        await ExecuteJobInternal(jobId);
-                    }
-                    catch (Exception ex)
-                    {
-                        McpLogger.LogError($"Test job {jobId} failed with exception: {ex.Message}");
-                        _jobStore.Fail(jobId, ex.Message, "job_execution_exception");
-                    }
-                };
-            };
+                    await ExecuteJobInternal(jobId);
+                }
+                catch (Exception ex)
+                {
+                    McpLogger.LogError($"Test job {jobId} failed with exception: {ex.Message}");
+                    _jobStore.Fail(jobId, ex.Message, "job_execution_exception");
+                }
+            });
 
             return new JObject
             {

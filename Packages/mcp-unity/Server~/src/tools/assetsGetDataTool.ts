@@ -11,7 +11,8 @@ const paramsSchema = z.object({
   assetPath: z.string().optional().describe('The path of the asset in the AssetDatabase'),
   guid: z.string().optional().describe('The GUID of the asset'),
   includeSerializedProperties: z.boolean().optional().default(true).describe('Whether to include serialized property data (default: true)'),
-  maxProperties: z.number().int().positive().max(500).optional().default(100).describe('Maximum number of serialized properties to return (1-500, default: 100)')
+  maxProperties: z.number().int().positive().max(500).optional().default(100).describe('Maximum number of serialized properties to return (1-500, default: 100)'),
+  paths: z.array(z.string()).optional().describe('Specific property paths to retrieve (e.g., ["baseStats", "baseStats.damage"]). If provided, only matching properties and their children are returned.')
 });
 
 export function registerAssetsGetDataTool(server: McpServer, mcpUnity: McpUnity, logger: Logger) {
@@ -36,7 +37,7 @@ export function registerAssetsGetDataTool(server: McpServer, mcpUnity: McpUnity,
 }
 
 async function toolHandler(mcpUnity: McpUnity, params: z.infer<typeof paramsSchema>): Promise<CallToolResult> {
-  const { assetPath, guid, includeSerializedProperties = true, maxProperties = 100 } = params;
+  const { assetPath, guid, includeSerializedProperties = true, maxProperties = 100, paths } = params;
 
   if (!assetPath && !guid) {
     throw new McpUnityError(
@@ -47,7 +48,7 @@ async function toolHandler(mcpUnity: McpUnity, params: z.infer<typeof paramsSche
 
   const response = await mcpUnity.sendRequest({
     method: toolName,
-    params: { assetPath, guid, includeSerializedProperties, maxProperties }
+    params: { assetPath, guid, includeSerializedProperties, maxProperties, paths }
   });
 
   if (!response.success) {

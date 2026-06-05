@@ -2,6 +2,7 @@ using McpUnity.Resources;
 using McpUnity.Unity;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using Newtonsoft.Json.Linq;
 
 namespace McpUnity.Tools
@@ -60,13 +61,19 @@ namespace McpUnity.Tools
             {
                 // Otherwise, treat it as a name or hierarchical path
                 gameObject = GameObject.Find(idOrName);
+
+                // If not found in scene, try to find in Prefab Stage
+                if (gameObject == null)
+                {
+                    gameObject = FindInPrefabStage(idOrName);
+                }
             }
 
             // Check if the GameObject was found
             if (gameObject == null)
             {
                 return McpUnitySocketHandler.CreateErrorResponse(
-                    $"GameObject with '{idOrName}' reference not found. Make sure the GameObject exists and is loaded in the current scene(s).",
+                    $"GameObject with '{idOrName}' reference not found. Make sure the GameObject exists and is loaded in the current scene(s) or Prefab Mode.",
                     "not_found_error"
                 );
             }
@@ -87,6 +94,70 @@ namespace McpUnity.Tools
                 ["gameObject"] = gameObjectData,
                 ["instanceId"] = gameObject.GetInstanceID()
             };
+        }
+
+        /// <summary>
+        /// Find a GameObject in the Prefab Stage by name or path.
+        /// Handles root-prefixed paths from gameobject_find (e.g. "Root/Child/Grandchild").
+        /// </summary>
+        private static GameObject FindInPrefabStage(string nameOrPath)
+        {
+            PrefabStage prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (prefabStage == null)
+            {
+                return null;
+            }
+
+            GameObject rootGameObject = prefabStage.prefabContentsRoot;
+            if (rootGameObject == null)
+            {
+                return null;
+            }
+
+            // 1. Exact root name match
+            if (rootGameObject.name.Equals(nameOrPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return rootGameObject;
+            }
+
+            // 2. Strip root prefix if present (gameobject_find returns "Root/Child/Grandchild")
+            string relativePath = nameOrPath;
+            if (nameOrPath.StartsWith(rootGameObject.name + "/", System.StringComparison.OrdinalIgnoreCase))
+            {
+                relativePath = nameOrPath.Substring(rootGameObject.name.Length + 1);
+            }
+
+            // 3. Try Transform.Find with relative path (exact match)
+            Transform childTransform = rootGameObject.transform.Find(relativePath);
+            if (childTransform != null)
+            {
+                return childTransform.gameObject;
+            }
+
+            // 4. Try exact name match on children (not partial)
+            return FindExactNameRecursive(rootGameObject.transform, relativePath);
+        }
+
+        /// <summary>
+        /// Recursively find a GameObject by exact name match in children
+        /// </summary>
+        private static GameObject FindExactNameRecursive(Transform parent, string name)
+        {
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                if (child.name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return child.gameObject;
+                }
+
+                GameObject found = FindExactNameRecursive(child, name);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+            return null;
         }
     }
 }

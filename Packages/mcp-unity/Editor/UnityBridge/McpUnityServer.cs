@@ -139,6 +139,10 @@ namespace McpUnity.Unity
         {
             StopServer();
 
+            // Dispose TestRunnerService to unregister TestRunnerApi callbacks
+            _testRunnerService?.Dispose();
+            _testRunnerService = null;
+
             EditorApplication.quitting -= OnEditorQuitting;
             AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
@@ -269,6 +273,64 @@ namespace McpUnity.Unity
         }
 
         /// <summary>
+        /// Register a tool with duplicate-name detection.
+        /// Use this instead of manual _tools.Add() to catch registration errors early.
+        /// </summary>
+        private void AddTool(McpToolBase tool)
+        {
+            if (tool == null)
+            {
+                McpLogger.LogError("Attempted to register a null tool.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tool.Name))
+            {
+                McpLogger.LogError($"Attempted to register tool with empty name: {tool.GetType().Name}");
+                return;
+            }
+
+            if (_tools.ContainsKey(tool.Name))
+            {
+                McpLogger.LogError(
+                    $"Duplicate tool registration skipped: '{tool.Name}'. " +
+                    $"Existing: {_tools[tool.Name].GetType().Name}, Skipped: {tool.GetType().Name}");
+                return;
+            }
+
+            _tools.Add(tool.Name, tool);
+        }
+
+        /// <summary>
+        /// Register a resource with duplicate-name detection.
+        /// Use this instead of manual _resources.Add() to catch registration errors early.
+        /// </summary>
+        private void AddResource(McpResourceBase resource)
+        {
+            if (resource == null)
+            {
+                McpLogger.LogError("Attempted to register a null resource.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.Name))
+            {
+                McpLogger.LogError($"Attempted to register resource with empty name: {resource.GetType().Name}");
+                return;
+            }
+
+            if (_resources.ContainsKey(resource.Name))
+            {
+                McpLogger.LogError(
+                    $"Duplicate resource registration skipped: '{resource.Name}'. " +
+                    $"Existing: {_resources[resource.Name].GetType().Name}, Skipped: {resource.GetType().Name}");
+                return;
+            }
+
+            _resources.Add(resource.Name, resource);
+        }
+
+        /// <summary>
         /// Installs the MCP Node.js server by running 'npm install' and 'npm run build'
         /// in the server directory if 'node_modules' or 'build' folders are missing.
         /// </summary>
@@ -307,249 +369,108 @@ namespace McpUnity.Unity
         /// </summary>
         private void RegisterTools()
         {
-            // Register MenuItemTool
-            MenuItemTool menuItemTool = new MenuItemTool();
-            _tools.Add(menuItemTool.Name, menuItemTool);
-            
-            // Register SelectGameObjectTool
-            SelectGameObjectTool selectGameObjectTool = new SelectGameObjectTool();
-            _tools.Add(selectGameObjectTool.Name, selectGameObjectTool);
+            // MenuItem
+            AddTool(new MenuItemTool());
 
-            // Register UpdateGameObjectTool
-            UpdateGameObjectTool updateGameObjectTool = new UpdateGameObjectTool();
-            _tools.Add(updateGameObjectTool.Name, updateGameObjectTool);
-            
-            // Register PackageManagerTool
-            AddPackageTool addPackageTool = new AddPackageTool();
-            _tools.Add(addPackageTool.Name, addPackageTool);
+            // GameObject
+            AddTool(new SelectGameObjectTool());
+            AddTool(new UpdateGameObjectTool());
+            AddTool(new GetGameObjectTool());
+            AddTool(new DuplicateGameObjectTool());
+            AddTool(new DeleteGameObjectTool());
+            AddTool(new ReparentGameObjectTool());
+            AddTool(new GameObjectFindTool());
+            AddTool(new GameObjectCreateTool());
 
-            // Register PackageListTool
-            PackageListTool packageListTool = new PackageListTool();
-            _tools.Add(packageListTool.Name, packageListTool);
+            // GameObject Components
+            AddTool(new UpdateComponentTool());
+            AddTool(new GameObjectComponentDestroyTool());
+            AddTool(new GameObjectComponentGetDataTool());
+            AddTool(new GameObjectComponentListAllTool());
 
-            // Register PackageRemoveTool
-            PackageRemoveTool packageRemoveTool = new PackageRemoveTool();
-            _tools.Add(packageRemoveTool.Name, packageRemoveTool);
+            // Object
+            AddTool(new ObjectGetDataTool());
+            AddTool(new ObjectModifyTool());
 
-            // Register PackageSearchTool
-            PackageSearchTool packageSearchTool = new PackageSearchTool();
-            _tools.Add(packageSearchTool.Name, packageSearchTool);
-            
-            // Register RunTestsTool
-            RunTestsTool runTestsTool = new RunTestsTool(_testRunnerService);
-            _tools.Add(runTestsTool.Name, runTestsTool);
-            
-            // Register GetTestJobStatusTool
-            GetTestJobStatusTool getTestJobStatusTool = new GetTestJobStatusTool(_testRunnerService);
-            _tools.Add(getTestJobStatusTool.Name, getTestJobStatusTool);
-            
-            // Register SendConsoleLogTool
-            SendConsoleLogTool sendConsoleLogTool = new SendConsoleLogTool();
-            _tools.Add(sendConsoleLogTool.Name, sendConsoleLogTool);
-            
-            // Register UpdateComponentTool
-            UpdateComponentTool updateComponentTool = new UpdateComponentTool();
-            _tools.Add(updateComponentTool.Name, updateComponentTool);
-            
-            // Register AddAssetToSceneTool
-            AddAssetToSceneTool addAssetToSceneTool = new AddAssetToSceneTool();
-            _tools.Add(addAssetToSceneTool.Name, addAssetToSceneTool);
-            
-            // Register CreatePrefabTool
-            CreatePrefabTool createPrefabTool = new CreatePrefabTool();
-            _tools.Add(createPrefabTool.Name, createPrefabTool);
+            // Transform
+            AddTool(new MoveGameObjectTool());
+            AddTool(new RotateGameObjectTool());
+            AddTool(new ScaleGameObjectTool());
+            AddTool(new SetTransformTool());
 
-            // Register CreateSceneTool
-            CreateSceneTool createSceneTool = new CreateSceneTool();
-            _tools.Add(createSceneTool.Name, createSceneTool);
+            // Material
+            AddTool(new CreateMaterialTool());
+            AddTool(new AssignMaterialTool());
+            AddTool(new ModifyMaterialTool());
+            AddTool(new GetMaterialInfoTool());
 
-            // Register DeleteSceneTool
-            DeleteSceneTool deleteSceneTool = new DeleteSceneTool();
-            _tools.Add(deleteSceneTool.Name, deleteSceneTool);
+            // Scene
+            AddTool(new CreateSceneTool());
+            AddTool(new DeleteSceneTool());
+            AddTool(new LoadSceneTool());
+            AddTool(new SaveSceneTool());
+            AddTool(new GetSceneInfoTool());
+            AddTool(new UnloadSceneTool());
+            AddTool(new SceneSetActiveTool());
+            AddTool(new SceneGetDataTool());
+            AddTool(new SceneListOpenedTool());
 
-            // Register LoadSceneTool
-            LoadSceneTool loadSceneTool = new LoadSceneTool();
-            _tools.Add(loadSceneTool.Name, loadSceneTool);
+            // Prefab
+            AddTool(new CreatePrefabTool());
+            AddTool(new PrefabCreateFromSceneTool());
+            AddTool(new PrefabOpenTool());
+            AddTool(new PrefabCloseTool());
+            AddTool(new PrefabSaveTool());
+            AddTool(new PrefabGetHierarchyTool());
 
-            // Register SaveSceneTool
-            SaveSceneTool saveSceneTool = new SaveSceneTool();
-            _tools.Add(saveSceneTool.Name, saveSceneTool);
+            // Asset
+            AddTool(new AddAssetToSceneTool());
+            AddTool(new AssetsFindTool());
+            AddTool(new AssetsFindBuiltInTool());
+            AddTool(new AssetsGetDataTool());
+            AddTool(new AssetsCreateFolderTool());
+            AddTool(new AssetsCopyTool());
+            AddTool(new AssetsMoveTool());
+            AddTool(new AssetsDeleteTool());
+            AddTool(new AssetsModifyTool());
+            AddTool(new AssetsRefreshTool());
+            AddTool(new AssetsShaderListAllTool());
 
-            // Register GetSceneInfoTool
-            GetSceneInfoTool getSceneInfoTool = new GetSceneInfoTool();
-            _tools.Add(getSceneInfoTool.Name, getSceneInfoTool);
+            // Package
+            AddTool(new AddPackageTool());
+            AddTool(new PackageListTool());
+            AddTool(new PackageRemoveTool());
+            AddTool(new PackageSearchTool());
 
-            // Register UnloadSceneTool
-            UnloadSceneTool unloadSceneTool = new UnloadSceneTool();
-            _tools.Add(unloadSceneTool.Name, unloadSceneTool);
+            // Console / Editor
+            AddTool(new SendConsoleLogTool());
+            AddTool(new ConsoleClearLogsTool());
+            AddTool(new RecompileScriptsTool());
+            AddTool(new EditorApplicationGetStateTool());
+            AddTool(new EditorApplicationSetStateTool());
+            AddTool(new EditorSelectionGetTool());
 
-            // Register RecompileScriptsTool
-            RecompileScriptsTool recompileScriptsTool = new RecompileScriptsTool();
-            _tools.Add(recompileScriptsTool.Name, recompileScriptsTool);
-            
-            // Register GetGameObjectTool
-            GetGameObjectTool getGameObjectTool = new GetGameObjectTool();
-            _tools.Add(getGameObjectTool.Name, getGameObjectTool);
+            // Test
+            AddTool(new RunTestsTool(_testRunnerService));
+            AddTool(new GetTestJobStatusTool(_testRunnerService));
 
-            // Register DuplicateGameObjectTool
-            DuplicateGameObjectTool duplicateGameObjectTool = new DuplicateGameObjectTool();
-            _tools.Add(duplicateGameObjectTool.Name, duplicateGameObjectTool);
+            // Profiler
+            AddTool(new ProfilerStartTool());
+            AddTool(new ProfilerStopTool());
+            AddTool(new ProfilerGetStatusTool());
+            AddTool(new ProfilerGetMemoryStatsTool());
+            AddTool(new ProfilerCaptureFrameTool());
+            AddTool(new ProfilerStatusTool());
+            AddTool(new ProfilerEnableRecordingTool());
+            AddTool(new ProfilerGetSelectedFrameTool());
 
-            // Register DeleteGameObjectTool
-            DeleteGameObjectTool deleteGameObjectTool = new DeleteGameObjectTool();
-            _tools.Add(deleteGameObjectTool.Name, deleteGameObjectTool);
+            // Reflection
+            AddTool(new ReflectionMethodFindTool());
+            AddTool(new ReflectionMethodCallTool());
+            AddTool(new TypeGetJsonSchemaTool());
 
-            // Register ReparentGameObjectTool
-            ReparentGameObjectTool reparentGameObjectTool = new ReparentGameObjectTool();
-            _tools.Add(reparentGameObjectTool.Name, reparentGameObjectTool);
-
-            // Register Transform Tools
-            MoveGameObjectTool moveGameObjectTool = new MoveGameObjectTool();
-            _tools.Add(moveGameObjectTool.Name, moveGameObjectTool);
-
-            RotateGameObjectTool rotateGameObjectTool = new RotateGameObjectTool();
-            _tools.Add(rotateGameObjectTool.Name, rotateGameObjectTool);
-
-            ScaleGameObjectTool scaleGameObjectTool = new ScaleGameObjectTool();
-            _tools.Add(scaleGameObjectTool.Name, scaleGameObjectTool);
-
-            SetTransformTool setTransformTool = new SetTransformTool();
-            _tools.Add(setTransformTool.Name, setTransformTool);
-
-            // Register Material Tools
-            CreateMaterialTool createMaterialTool = new CreateMaterialTool();
-            _tools.Add(createMaterialTool.Name, createMaterialTool);
-
-            AssignMaterialTool assignMaterialTool = new AssignMaterialTool();
-            _tools.Add(assignMaterialTool.Name, assignMaterialTool);
-
-            ModifyMaterialTool modifyMaterialTool = new ModifyMaterialTool();
-            _tools.Add(modifyMaterialTool.Name, modifyMaterialTool);
-
-            GetMaterialInfoTool getMaterialInfoTool = new GetMaterialInfoTool();
-            _tools.Add(getMaterialInfoTool.Name, getMaterialInfoTool);
-
-            // Register BatchExecuteTool
-            BatchExecuteTool batchExecuteTool = new BatchExecuteTool(this);
-            _tools.Add(batchExecuteTool.Name, batchExecuteTool);
-
-            // Register Asset CRUD tools
-            AssetsFindTool assetsFindTool = new AssetsFindTool();
-            _tools.Add(assetsFindTool.Name, assetsFindTool);
-
-            AssetsFindBuiltInTool assetsFindBuiltInTool = new AssetsFindBuiltInTool();
-            _tools.Add(assetsFindBuiltInTool.Name, assetsFindBuiltInTool);
-
-            AssetsGetDataTool assetsGetDataTool = new AssetsGetDataTool();
-            _tools.Add(assetsGetDataTool.Name, assetsGetDataTool);
-
-            AssetsCreateFolderTool assetsCreateFolderTool = new AssetsCreateFolderTool();
-            _tools.Add(assetsCreateFolderTool.Name, assetsCreateFolderTool);
-
-            AssetsCopyTool assetsCopyTool = new AssetsCopyTool();
-            _tools.Add(assetsCopyTool.Name, assetsCopyTool);
-
-            AssetsRefreshTool assetsRefreshTool = new AssetsRefreshTool();
-            _tools.Add(assetsRefreshTool.Name, assetsRefreshTool);
-
-            AssetsMoveTool assetsMoveTool = new AssetsMoveTool();
-            _tools.Add(assetsMoveTool.Name, assetsMoveTool);
-
-            AssetsDeleteTool assetsDeleteTool = new AssetsDeleteTool();
-            _tools.Add(assetsDeleteTool.Name, assetsDeleteTool);
-
-            AssetsModifyTool assetsModifyTool = new AssetsModifyTool();
-            _tools.Add(assetsModifyTool.Name, assetsModifyTool);
-
-            // Register GameObject/component discovery tools
-            GameObjectFindTool gameObjectFindTool = new GameObjectFindTool();
-            _tools.Add(gameObjectFindTool.Name, gameObjectFindTool);
-
-            GameObjectCreateTool gameObjectCreateTool = new GameObjectCreateTool();
-            _tools.Add(gameObjectCreateTool.Name, gameObjectCreateTool);
-
-            GameObjectComponentDestroyTool gameObjectComponentDestroyTool = new GameObjectComponentDestroyTool();
-            _tools.Add(gameObjectComponentDestroyTool.Name, gameObjectComponentDestroyTool);
-
-            GameObjectComponentGetDataTool gameObjectComponentGetDataTool = new GameObjectComponentGetDataTool();
-            _tools.Add(gameObjectComponentGetDataTool.Name, gameObjectComponentGetDataTool);
-
-            GameObjectComponentListAllTool gameObjectComponentListAllTool = new GameObjectComponentListAllTool();
-            _tools.Add(gameObjectComponentListAllTool.Name, gameObjectComponentListAllTool);
-
-            // Register Object get/modify tools
-            ObjectGetDataTool objectGetDataTool = new ObjectGetDataTool();
-            _tools.Add(objectGetDataTool.Name, objectGetDataTool);
-
-            ObjectModifyTool objectModifyTool = new ObjectModifyTool();
-            _tools.Add(objectModifyTool.Name, objectModifyTool);
-
-            // Register Prefab workflow tools
-            PrefabCreateFromSceneTool prefabCreateFromSceneTool = new PrefabCreateFromSceneTool();
-            _tools.Add(prefabCreateFromSceneTool.Name, prefabCreateFromSceneTool);
-
-            PrefabOpenTool prefabOpenTool = new PrefabOpenTool();
-            _tools.Add(prefabOpenTool.Name, prefabOpenTool);
-
-            PrefabCloseTool prefabCloseTool = new PrefabCloseTool();
-            _tools.Add(prefabCloseTool.Name, prefabCloseTool);
-
-            PrefabSaveTool prefabSaveTool = new PrefabSaveTool();
-            _tools.Add(prefabSaveTool.Name, prefabSaveTool);
-
-            // Register Console/Editor tools
-            ConsoleClearLogsTool consoleClearLogsTool = new ConsoleClearLogsTool();
-            _tools.Add(consoleClearLogsTool.Name, consoleClearLogsTool);
-
-            EditorApplicationGetStateTool editorApplicationGetStateTool = new EditorApplicationGetStateTool();
-            _tools.Add(editorApplicationGetStateTool.Name, editorApplicationGetStateTool);
-
-            EditorApplicationSetStateTool editorApplicationSetStateTool = new EditorApplicationSetStateTool();
-            _tools.Add(editorApplicationSetStateTool.Name, editorApplicationSetStateTool);
-
-            EditorSelectionGetTool editorSelectionGetTool = new EditorSelectionGetTool();
-            _tools.Add(editorSelectionGetTool.Name, editorSelectionGetTool);
-
-            // Register Profiler tools
-            ProfilerStartTool profilerStartTool = new ProfilerStartTool();
-            _tools.Add(profilerStartTool.Name, profilerStartTool);
-
-            ProfilerStopTool profilerStopTool = new ProfilerStopTool();
-            _tools.Add(profilerStopTool.Name, profilerStopTool);
-
-            ProfilerGetStatusTool profilerGetStatusTool = new ProfilerGetStatusTool();
-            _tools.Add(profilerGetStatusTool.Name, profilerGetStatusTool);
-
-            ProfilerGetMemoryStatsTool profilerGetMemoryStatsTool = new ProfilerGetMemoryStatsTool();
-            _tools.Add(profilerGetMemoryStatsTool.Name, profilerGetMemoryStatsTool);
-
-            // Register Profiler frame capture tool
-            ProfilerCaptureFrameTool profilerCaptureFrameTool = new ProfilerCaptureFrameTool();
-            _tools.Add(profilerCaptureFrameTool.Name, profilerCaptureFrameTool);
-
-            // Register Reflection tools
-            ReflectionMethodFindTool reflectionMethodFindTool = new ReflectionMethodFindTool();
-            _tools.Add(reflectionMethodFindTool.Name, reflectionMethodFindTool);
-
-            ReflectionMethodCallTool reflectionMethodCallTool = new ReflectionMethodCallTool();
-            _tools.Add(reflectionMethodCallTool.Name, reflectionMethodCallTool);
-
-            TypeGetJsonSchemaTool typeGetJsonSchemaTool = new TypeGetJsonSchemaTool();
-            _tools.Add(typeGetJsonSchemaTool.Name, typeGetJsonSchemaTool);
-
-            // Register Scene tools
-            SceneSetActiveTool sceneSetActiveTool = new SceneSetActiveTool();
-            _tools.Add(sceneSetActiveTool.Name, sceneSetActiveTool);
-
-            SceneGetDataTool sceneGetDataTool = new SceneGetDataTool();
-            _tools.Add(sceneGetDataTool.Name, sceneGetDataTool);
-
-            SceneListOpenedTool sceneListOpenedTool = new SceneListOpenedTool();
-            _tools.Add(sceneListOpenedTool.Name, sceneListOpenedTool);
-
-            // Register Shader tools
-            AssetsShaderListAllTool assetsShaderListAllTool = new AssetsShaderListAllTool();
-            _tools.Add(assetsShaderListAllTool.Name, assetsShaderListAllTool);
+            // Batch
+            AddTool(new BatchExecuteTool(this));
         }
         
         /// <summary>
@@ -557,33 +478,13 @@ namespace McpUnity.Unity
         /// </summary>
         private void RegisterResources()
         {
-            // Register GetMenuItemsResource
-            GetMenuItemsResource getMenuItemsResource = new GetMenuItemsResource();
-            _resources.Add(getMenuItemsResource.Name, getMenuItemsResource);
-            
-            // Register GetConsoleLogsResource
-            GetConsoleLogsResource getConsoleLogsResource = new GetConsoleLogsResource(_consoleLogsService);
-            _resources.Add(getConsoleLogsResource.Name, getConsoleLogsResource);
-            
-            // Register GetScenesHierarchyResource
-            GetScenesHierarchyResource getScenesHierarchyResource = new GetScenesHierarchyResource();
-            _resources.Add(getScenesHierarchyResource.Name, getScenesHierarchyResource);
-            
-            // Register GetPackagesResource
-            GetPackagesResource getPackagesResource = new GetPackagesResource();
-            _resources.Add(getPackagesResource.Name, getPackagesResource);
-            
-            // Register GetAssetsResource
-            GetAssetsResource getAssetsResource = new GetAssetsResource();
-            _resources.Add(getAssetsResource.Name, getAssetsResource);
-            
-            // Register GetTestsResource
-            GetTestsResource getTestsResource = new GetTestsResource(_testRunnerService);
-            _resources.Add(getTestsResource.Name, getTestsResource);
-            
-            // Register GetGameObjectResource
-            GetGameObjectResource getGameObjectResource = new GetGameObjectResource();
-            _resources.Add(getGameObjectResource.Name, getGameObjectResource);
+            AddResource(new GetMenuItemsResource());
+            AddResource(new GetConsoleLogsResource(_consoleLogsService));
+            AddResource(new GetScenesHierarchyResource());
+            AddResource(new GetPackagesResource());
+            AddResource(new GetAssetsResource());
+            AddResource(new GetTestsResource(_testRunnerService));
+            AddResource(new GetGameObjectResource());
         }
         
         /// <summary>
@@ -616,6 +517,10 @@ namespace McpUnity.Unity
         private static void OnBeforeAssemblyReload()
         {
             if (Application.isBatchMode || _instance == null) return;
+            
+            // Dispose TestRunnerService to unregister TestRunnerApi callbacks before reload
+            _instance._testRunnerService?.Dispose();
+            _instance._testRunnerService = null;
             
             if (_instance.IsListening)
             {

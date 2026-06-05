@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
@@ -29,6 +31,10 @@ namespace McpUnity.Tools
             string guid = parameters?["guid"]?.ToObject<string>();
             bool includeSerializedProperties = parameters?["includeSerializedProperties"]?.ToObject<bool?>() ?? true;
             int maxProperties = parameters?["maxProperties"]?.ToObject<int?>() ?? DefaultMaxProperties;
+            JArray pathsArray = parameters?["paths"]?.ToObject<JArray>();
+            HashSet<string> requestedPaths = pathsArray != null 
+                ? new HashSet<string>(pathsArray.Select(p => p.ToString())) 
+                : null;
 
             if (maxProperties < 1)
             {
@@ -101,7 +107,7 @@ namespace McpUnity.Tools
 
             if (includeSerializedProperties && !isFolder)
             {
-                assetData["serializedProperties"] = GetSerializedProperties(asset, maxProperties);
+                assetData["serializedProperties"] = GetSerializedProperties(asset, maxProperties, requestedPaths);
                 assetData["serializedPropertyCount"] = assetData["serializedProperties"] is JArray props ? props.Count : 0;
             }
 
@@ -116,23 +122,17 @@ namespace McpUnity.Tools
             };
         }
 
-        private static JArray GetSerializedProperties(UnityEngine.Object asset, int maxProperties)
+        private static JArray GetSerializedProperties(UnityEngine.Object asset, int maxProperties, HashSet<string> requestedPaths = null)
         {
             var serializedObject = new SerializedObject(asset);
             var iterator = serializedObject.GetIterator();
-            var properties = new JArray();
-            bool enterChildren = true;
+            var allProperties = new List<JObject>();
 
-            while (iterator.NextVisible(enterChildren))
+            // First pass: collect all properties (including nested children of custom classes/structs)
+            // NextVisible(true) ensures we enter children of each property
+            while (iterator.NextVisible(true))
             {
-                enterChildren = false;
-
-                if (properties.Count >= maxProperties)
-                {
-                    break;
-                }
-
-                properties.Add(new JObject
+                allProperties.Add(new JObject
                 {
                     ["name"] = iterator.name,
                     ["displayName"] = iterator.displayName,
@@ -142,7 +142,36 @@ namespace McpUnity.Tools
                 });
             }
 
-            return properties;
+            // Second pass: filter by requested paths if provided
+            var filtered = new JArray();
+            if (requestedPaths != null && requestedPaths.Count > 0)
+            {
+                foreach (var prop in allProperties)
+                {
+                    string propertyPath = prop["path"]?.ToString();
+                    if (propertyPath != null)
+                    {
+                        bool matches = requestedPaths.Any(rp => 
+                            propertyPath == rp || propertyPath.StartsWith(rp + "."));
+                        if (matches)
+                        {
+                            filtered.Add(prop);
+                            if (filtered.Count >= maxProperties)
+                                break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // No filter - return all up to maxProperties
+                foreach (var prop in allProperties.Take(maxProperties))
+                {
+                    filtered.Add(prop);
+                }
+            }
+
+            return filtered;
         }
 
         private static JToken SerializePropertyValue(SerializedProperty property)

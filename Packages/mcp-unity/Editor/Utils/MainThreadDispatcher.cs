@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using UnityEditor;
 
 namespace McpUnity.Utils
@@ -31,6 +32,90 @@ namespace McpUnity.Utils
         {
             if (action == null) return;
             Actions.Enqueue(action);
+        }
+
+        /// <summary>
+        /// Post an async action to be executed on Unity's main thread.
+        /// Exceptions are caught and logged. Use this instead of Post(async () => ...) 
+        /// to avoid unobserved async void exceptions.
+        /// </summary>
+        public static void PostAsync(Func<Task> asyncAction)
+        {
+            if (asyncAction == null) return;
+            Post(() => _ = RunAsync(asyncAction));
+        }
+
+        /// <summary>
+        /// Post an action to be executed after a specified number of editor updates.
+        /// Useful for deferring execution to let WebSocket responses flush first.
+        /// </summary>
+        public static void PostAfterUpdates(int updateCount, Action action)
+        {
+            if (action == null || updateCount <= 0)
+            {
+                Post(action);
+                return;
+            }
+
+            Post(() => _ = RunAfterUpdates(updateCount, action));
+        }
+
+        /// <summary>
+        /// Post an async action to be executed after a specified number of editor updates.
+        /// </summary>
+        public static void PostAfterUpdatesAsync(int updateCount, Func<Task> asyncAction)
+        {
+            if (asyncAction == null || updateCount <= 0)
+            {
+                PostAsync(asyncAction);
+                return;
+            }
+
+            Post(() => _ = RunAfterUpdatesAsync(updateCount, asyncAction));
+        }
+
+        private static async Task RunAsync(Func<Task> asyncAction)
+        {
+            try
+            {
+                await asyncAction();
+            }
+            catch (Exception ex)
+            {
+                McpLogger.LogError($"MainThreadDispatcher async exception: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        private static async Task RunAfterUpdates(int updateCount, Action action)
+        {
+            for (int i = 0; i < updateCount; i++)
+            {
+                await Task.Yield();
+            }
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                McpLogger.LogError($"MainThreadDispatcher deferred exception: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        private static async Task RunAfterUpdatesAsync(int updateCount, Func<Task> asyncAction)
+        {
+            for (int i = 0; i < updateCount; i++)
+            {
+                await Task.Yield();
+            }
+            try
+            {
+                await asyncAction();
+            }
+            catch (Exception ex)
+            {
+                McpLogger.LogError($"MainThreadDispatcher deferred async exception: {ex.Message}\n{ex.StackTrace}");
+            }
         }
 
         private static void Pump()

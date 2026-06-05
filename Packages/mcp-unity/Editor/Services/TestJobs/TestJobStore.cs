@@ -45,21 +45,21 @@ namespace McpUnity.Services
         }
 
         /// <summary>
-        /// Creates a new PlayMode test job
+        /// Creates a new test job (for both EditMode and PlayMode)
         /// </summary>
         public TestJob CreatePlayModeJob(string testFilter, bool returnOnlyFailures, bool returnWithLogs)
         {
-            // Check if there's already an active PlayMode job
-            var active = GetActivePlayModeJob();
+            // Check if there's already an active job (any mode)
+            var active = GetActiveJob();
             if (active != null)
             {
-                McpLogger.LogWarning($"Cannot create new PlayMode job: active job {active.JobId} still exists");
+                McpLogger.LogWarning($"Cannot create new test job: active job {active.JobId} ({active.TestMode}) still exists");
                 return null;
             }
 
             var job = new TestJob
             {
-                TestMode = "PlayMode",
+                TestMode = "PlayMode", // Default, will be overridden by caller
                 TestFilter = testFilter ?? "",
                 ReturnOnlyFailures = returnOnlyFailures,
                 ReturnWithLogs = returnWithLogs
@@ -68,7 +68,7 @@ namespace McpUnity.Services
             _jobs.Add(job);
             Save();
 
-            McpLogger.LogInfo($"Created PlayMode test job: {job.JobId}");
+            McpLogger.LogInfo($"Created test job: {job.JobId}");
             return job;
         }
 
@@ -88,6 +88,14 @@ namespace McpUnity.Services
             return _jobs.FirstOrDefault(j => 
                 j.TestMode == "PlayMode" && 
                 j.IsActive);
+        }
+
+        /// <summary>
+        /// Gets the currently active job of any mode (pending or running)
+        /// </summary>
+        public TestJob GetActiveJob()
+        {
+            return _jobs.FirstOrDefault(j => j.IsActive);
         }
 
         /// <summary>

@@ -49,6 +49,7 @@ import { registerPrefabCreateFromSceneTool } from './tools/prefabCreateFromScene
 import { registerPrefabOpenTool } from './tools/prefabOpenTool.js';
 import { registerPrefabCloseTool } from './tools/prefabCloseTool.js';
 import { registerPrefabSaveTool } from './tools/prefabSaveTool.js';
+import { registerPrefabGetHierarchyTool } from './tools/prefabGetHierarchyTool.js';
 import { registerConsoleClearLogsTool } from './tools/consoleClearLogsTool.js';
 import { registerEditorApplicationGetStateTool } from './tools/editorApplicationGetStateTool.js';
 import { registerEditorApplicationSetStateTool } from './tools/editorApplicationSetStateTool.js';
@@ -58,6 +59,9 @@ import { registerProfilerStopTool } from './tools/profilerStopTool.js';
 import { registerProfilerGetStatusTool } from './tools/profilerGetStatusTool.js';
 import { registerProfilerGetMemoryStatsTool } from './tools/profilerGetMemoryStatsTool.js';
 import { registerProfilerCaptureFrameTool } from './tools/profilerCaptureFrameTool.js';
+import { registerProfilerStatusTool } from './tools/profilerStatusTool.js';
+import { registerProfilerEnableRecordingTool } from './tools/profilerEnableRecordingTool.js';
+import { registerProfilerGetSelectedFrameTool } from './tools/profilerGetSelectedFrameTool.js';
 import { registerReflectionMethodFindTool } from './tools/reflectionMethodFindTool.js';
 import { registerReflectionMethodCallTool } from './tools/reflectionMethodCallTool.js';
 import { registerTypeGetJsonSchemaTool } from './tools/typeGetJsonSchemaTool.js';
@@ -162,6 +166,7 @@ registerPrefabCreateFromSceneTool(server, mcpUnity, toolLogger);
 registerPrefabOpenTool(server, mcpUnity, toolLogger);
 registerPrefabCloseTool(server, mcpUnity, toolLogger);
 registerPrefabSaveTool(server, mcpUnity, toolLogger);
+registerPrefabGetHierarchyTool(server, mcpUnity, toolLogger);
 
 // Register Console/Editor tools
 registerConsoleClearLogsTool(server, mcpUnity, toolLogger);
@@ -175,6 +180,11 @@ registerProfilerStopTool(server, mcpUnity, toolLogger);
 registerProfilerGetStatusTool(server, mcpUnity, toolLogger);
 registerProfilerGetMemoryStatsTool(server, mcpUnity, toolLogger);
 registerProfilerCaptureFrameTool(server, mcpUnity, toolLogger);
+
+// Register Profiler History tools
+registerProfilerStatusTool(server, mcpUnity, toolLogger);
+registerProfilerEnableRecordingTool(server, mcpUnity, toolLogger);
+registerProfilerGetSelectedFrameTool(server, mcpUnity, toolLogger);
 
 // Register Reflection tools
 registerReflectionMethodFindTool(server, mcpUnity, toolLogger);
