@@ -17,22 +17,30 @@ namespace McpUnity.Tests
         [SetUp]
         public void SetUp()
         {
-            _store = new TestJobStore();
             _testStorePath = Path.Combine(
-                Application.dataPath, 
-                "..", 
-                "Library", 
-                "McpUnity", 
-                "TestJobs.json");
+                Path.GetTempPath(),
+                $"McpUnity-TestJobs-{TestContext.CurrentContext.Test.ID}.json");
+
+            DeleteTestStoreFiles();
+            _store = new TestJobStore(_testStorePath);
         }
 
         [TearDown]
         public void TearDown()
         {
-            // Clean up test store file
+            DeleteTestStoreFiles();
+        }
+
+        private void DeleteTestStoreFiles()
+        {
             if (File.Exists(_testStorePath))
             {
                 File.Delete(_testStorePath);
+            }
+
+            if (File.Exists(_testStorePath + ".tmp"))
+            {
+                File.Delete(_testStorePath + ".tmp");
             }
         }
 
@@ -346,7 +354,7 @@ namespace McpUnity.Tests
             _store.MarkRunning(job.JobId, "run");
 
             // Act - Create new store instance to force reload
-            var newStore = new TestJobStore();
+            var newStore = new TestJobStore(_testStorePath);
             var loaded = newStore.Get(job.JobId);
 
             // Assert
@@ -367,7 +375,7 @@ namespace McpUnity.Tests
             File.WriteAllText(_testStorePath, "not valid json {{{");
 
             // Act - Should not throw
-            var store = new TestJobStore();
+            var store = new TestJobStore(_testStorePath);
 
             // Assert - Store should be empty but functional
             Assert.AreEqual(0, store.GetActivePlayModeJob() == null ? 0 : 1);

@@ -342,6 +342,9 @@ namespace McpUnity.Services
             // Job-based path
             if (!string.IsNullOrEmpty(_activeJobId) && _activeMode.HasValue)
             {
+                if (result.HasChildren)
+                    return;
+
                 var job = _jobStore.Get(_activeJobId);
                 if (job == null) return;
 
@@ -496,7 +499,7 @@ namespace McpUnity.Services
                 ["message"] = $"{result.Test.Name} test run completed: {result.PassCount}/{testCount} passed - {result.FailCount}/{testCount} failed - {result.SkipCount}/{testCount} skipped",
                 ["resultState"] = result.ResultState,
                 ["durationSeconds"] = result.Duration,
-                ["testCount"] = job.TestCount,
+                ["testCount"] = testCount,
                 ["passCount"] = result.PassCount,
                 ["failCount"] = result.FailCount,
                 ["skipCount"] = result.SkipCount,

@@ -24,22 +24,24 @@ namespace McpUnity.Services
         /// <summary>
         /// Path to the JSON store file
         /// </summary>
-        private static string StorePath => Path.Combine(
-            Application.dataPath, 
-            "..", 
-            StoreFolder, 
-            StoreFileName);
+        private readonly string _storePath;
 
         /// <summary>
         /// Path to temporary backup file for atomic writes
         /// </summary>
-        private static string TempPath => StorePath + ".tmp";
+        private string TempPath => _storePath + ".tmp";
 
         /// <summary>
         /// Creates a new TestJobStore and loads existing jobs
         /// </summary>
-        public TestJobStore()
+        public TestJobStore(string storePath = null)
         {
+            _storePath = storePath ?? Path.Combine(
+                Application.dataPath,
+                "..",
+                StoreFolder,
+                StoreFileName);
+
             _jobs = new List<TestJob>();
             Load();
         }
@@ -251,7 +253,7 @@ namespace McpUnity.Services
         {
             try
             {
-                string directory = Path.GetDirectoryName(StorePath);
+                string directory = Path.GetDirectoryName(_storePath);
                 if (!Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
 
@@ -266,10 +268,10 @@ namespace McpUnity.Services
                 // Atomic write: temp file → copy → delete temp
                 File.WriteAllText(TempPath, json);
                 
-                if (File.Exists(StorePath))
-                    File.Delete(StorePath);
+                if (File.Exists(_storePath))
+                    File.Delete(_storePath);
                     
-                File.Move(TempPath, StorePath);
+                File.Move(TempPath, _storePath);
             }
             catch (Exception ex)
             {
@@ -286,13 +288,13 @@ namespace McpUnity.Services
 
             try
             {
-                if (!File.Exists(StorePath))
+                if (!File.Exists(_storePath))
                 {
                     _isLoaded = true;
                     return;
                 }
 
-                string json = File.ReadAllText(StorePath);
+                string json = File.ReadAllText(_storePath);
                 var wrapper = JObject.Parse(json);
                 var jobsArray = wrapper["jobs"] as JArray;
 
