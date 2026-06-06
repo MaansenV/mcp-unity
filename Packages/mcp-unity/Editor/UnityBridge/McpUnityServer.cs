@@ -139,10 +139,6 @@ namespace McpUnity.Unity
         {
             StopServer();
 
-            // Dispose TestRunnerService to unregister TestRunnerApi callbacks
-            _testRunnerService?.Dispose();
-            _testRunnerService = null;
-
             EditorApplication.quitting -= OnEditorQuitting;
             AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
@@ -452,7 +448,6 @@ namespace McpUnity.Unity
 
             // Test
             AddTool(new RunTestsTool(_testRunnerService));
-            AddTool(new GetTestJobStatusTool(_testRunnerService));
 
             // Profiler
             AddTool(new ProfilerStartTool());
@@ -517,10 +512,6 @@ namespace McpUnity.Unity
         private static void OnBeforeAssemblyReload()
         {
             if (Application.isBatchMode || _instance == null) return;
-            
-            // Dispose TestRunnerService to unregister TestRunnerApi callbacks before reload
-            _instance._testRunnerService?.Dispose();
-            _instance._testRunnerService = null;
             
             if (_instance.IsListening)
             {
