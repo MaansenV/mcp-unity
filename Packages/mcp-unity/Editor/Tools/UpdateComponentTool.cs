@@ -98,13 +98,6 @@ namespace McpUnity.Tools
                 }
                 
                 component = Undo.AddComponent(gameObject, componentType);
-
-                // Ensure changes are saved
-                EditorUtility.SetDirty(gameObject);
-                if (PrefabUtility.IsPartOfAnyPrefab(gameObject))
-                {
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(component);
-                }
                 
                 McpLogger.LogInfo($"[MCP Unity] Added component '{componentName}' to GameObject '{gameObject.name}'");
             }
@@ -117,15 +110,10 @@ namespace McpUnity.Tools
                 {
                     return McpUnitySocketHandler.CreateErrorResponse(errorMessage, "update_error");
                 }
-
-                // Ensure field changes are saved
-                EditorUtility.SetDirty(component);
-                if (PrefabUtility.IsPartOfAnyPrefab(gameObject))
-                {
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(component);
-                }
-
             }
+
+            // Ensure changes persist (critical for Prefab assets - fixes YAML not updating on disk)
+            EnsureChangesSaved(gameObject, component);
 
             // Create the response
             return new JObject
@@ -740,6 +728,39 @@ namespace McpUnity.Tools
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Ensures all component changes are properly marked dirty and saved to disk.
+        /// Critical fix for Prefab assets: previous version only modified in-memory state.
+        /// Now explicitly calls SavePrefabAsset() so changes appear in .prefab YAML.
+        /// </summary>
+        private void EnsureChangesSaved(GameObject gameObject, Component component)
+        {
+            if (component == null || gameObject == null) return;
+
+            EditorUtility.SetDirty(component);
+            EditorUtility.SetDirty(gameObject);
+
+            if (PrefabUtility.IsPartOfAnyPrefab(gameObject))
+            {
+                PrefabUtility.RecordPrefabInstancePropertyModifications(component);
+
+                // Handle actual Prefab assets (not just scene instances)
+                // This ensures object reference wiring ("Prefab-Verdrahtung") is serialized to YAML on disk
+                GameObject root = PrefabUtility.GetOutermostPrefabInstanceRoot(gameObject);
+                if (root == null) root = gameObject;
+
+                if (PrefabUtility.IsPartOfPrefabAsset(root))
+                {
+                    string assetPath = AssetDatabase.GetAssetPath(root);
+                    if (!string.IsNullOrEmpty(assetPath))
+                    {
+                        PrefabUtility.SavePrefabAsset(root);
+                        McpLogger.LogInfo($"[MCP Unity] Saved Prefab asset after update_component: {assetPath}");
+                    }
+                }
+            }
         }
     }
 }
