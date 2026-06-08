@@ -177,6 +177,35 @@ namespace McpUnity.Tools
 
         private static bool TrySetSerializedPropertyValue(SerializedProperty serializedProperty, JToken valueToken)
         {
+            if (serializedProperty == null || valueToken == null)
+                return false;
+
+            // Handle arrays (fixes bug with tags: [...] and other arrays).
+            // This explicitly sets arraySize (extends/shrinks array) then populates elements.
+            if (serializedProperty.isArray)
+            {
+                if (valueToken is JArray jArray)
+                {
+                    serializedProperty.arraySize = jArray.Count;
+                    for (int i = 0; i < jArray.Count; i++)
+                    {
+                        SerializedProperty element = serializedProperty.GetArrayElementAtIndex(i);
+                        // Recurse (elements are usually primitives like String)
+                        TrySetSerializedPropertyValue(element, jArray[i]);
+                    }
+                    return true;
+                }
+
+                // Allow setting array size directly with integer
+                if (valueToken.Type == JTokenType.Integer)
+                {
+                    serializedProperty.arraySize = valueToken.ToObject<int>();
+                    return true;
+                }
+
+                return false;
+            }
+
             switch (serializedProperty.propertyType)
             {
                 case SerializedPropertyType.Integer:
@@ -198,9 +227,26 @@ namespace McpUnity.Tools
                     {
                         return false;
                     }
-
                     serializedProperty.colorValue = color;
                     return true;
+                case SerializedPropertyType.Vector2:
+                    if (!TryParseVector2(valueToken, out Vector2 vector2))
+                    {
+                        return false;
+                    }
+                    serializedProperty.vector2Value = vector2;
+                    return true;
+                case SerializedPropertyType.Vector3:
+                    if (!TryParseVector3(valueToken, out Vector3 vector3))
+                    {
+                        return false;
+                    }
+                    serializedProperty.vector3Value = vector3;
+                    return true;
+                case SerializedPropertyType.ObjectReference:
+                    return TrySetObjectReference(serializedProperty, valueToken);
+                case SerializedPropertyType.Enum:
+                    return TrySetEnumValue(serializedProperty, valueToken);
                 default:
                     return false;
             }
@@ -253,6 +299,133 @@ namespace McpUnity.Tools
             try
             {
                 value = token.ToObject<float>();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryParseVector2(JToken valueToken, out Vector2 vector2)
+        {
+            vector2 = default;
+
+            if (valueToken is not JObject vectorObject)
+            {
+                return false;
+            }
+
+            if (!TryGetFloat(vectorObject, "x", out float x) ||
+                !TryGetFloat(vectorObject, "y", out float y))
+            {
+                return false;
+            }
+
+            vector2 = new Vector2(x, y);
+            return true;
+        }
+
+        private static bool TryParseVector3(JToken valueToken, out Vector3 vector3)
+        {
+            vector3 = default;
+
+            if (valueToken is not JObject vectorObject)
+            {
+                return false;
+            }
+
+            if (!TryGetFloat(vectorObject, "x", out float x) ||
+                !TryGetFloat(vectorObject, "y", out float y) ||
+                !TryGetFloat(vectorObject, "z", out float z))
+            {
+                return false;
+            }
+
+            vector3 = new Vector3(x, y, z);
+            return true;
+        }
+
+        private static bool TrySetObjectReference(SerializedProperty serializedProperty, JToken valueToken)
+        {
+            if (valueToken.Type == JTokenType.Null)
+            {
+                serializedProperty.objectReferenceValue = null;
+                return true;
+            }
+
+            if (valueToken is not JObject referenceObject)
+            {
+                return false;
+            }
+
+            UnityEngine.Object resolvedObject = null;
+
+            if (referenceObject.TryGetValue("instanceId", StringComparison.OrdinalIgnoreCase, out JToken instanceIdToken) &&
+                TryConvertToInt(instanceIdToken, out int instanceId) &&
+                instanceId != 0)
+            {
+                resolvedObject = EditorUtility.InstanceIDToObject(instanceId);
+            }
+
+            if (resolvedObject == null &&
+                referenceObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out JToken nameToken))
+            {
+                string name = nameToken.ToObject<string>();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    resolvedObject = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.Object>()
+                        .FirstOrDefault(obj => obj != null && string.Equals(obj.name, name, StringComparison.Ordinal));
+                }
+            }
+
+            if (resolvedObject == null)
+            {
+                return false;
+            }
+
+            serializedProperty.objectReferenceValue = resolvedObject;
+            return true;
+        }
+
+        private static bool TrySetEnumValue(SerializedProperty serializedProperty, JToken valueToken)
+        {
+            if (valueToken.Type == JTokenType.Null)
+            {
+                return false;
+            }
+
+            string enumName = valueToken.ToObject<string>();
+            if (string.IsNullOrEmpty(enumName))
+            {
+                return false;
+            }
+
+            int index = Array.FindIndex(serializedProperty.enumNames, enumNameItem =>
+                string.Equals(enumNameItem, enumName, StringComparison.OrdinalIgnoreCase));
+
+            if (index < 0)
+            {
+                index = Array.FindIndex(serializedProperty.enumDisplayNames, enumNameItem =>
+                    string.Equals(enumNameItem, enumName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            serializedProperty.enumValueIndex = index;
+            return true;
+        }
+
+        private static bool TryConvertToInt(JToken token, out int value)
+        {
+            value = 0;
+
+            try
+            {
+                value = token.ToObject<int>();
                 return true;
             }
             catch

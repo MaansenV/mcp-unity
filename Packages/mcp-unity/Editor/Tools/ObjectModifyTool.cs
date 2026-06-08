@@ -147,6 +147,35 @@ namespace McpUnity.Tools
 
         private static bool TrySetSerializedPropertyValue(SerializedProperty serializedProperty, JToken valueToken)
         {
+            if (serializedProperty == null || valueToken == null)
+                return false;
+
+            // Handle arrays (fixes bug with tags: [...] and other array fields on components).
+            // This explicitly sets arraySize (extends the array as reported in the bug) then populates elements.
+            if (serializedProperty.isArray)
+            {
+                if (valueToken is JArray jArray)
+                {
+                    serializedProperty.arraySize = jArray.Count;
+                    for (int i = 0; i < jArray.Count; i++)
+                    {
+                        SerializedProperty element = serializedProperty.GetArrayElementAtIndex(i);
+                        // Recurse for element values
+                        TrySetSerializedPropertyValue(element, jArray[i]);
+                    }
+                    return true;
+                }
+
+                // Allow setting array size directly with integer
+                if (valueToken.Type == JTokenType.Integer)
+                {
+                    serializedProperty.arraySize = valueToken.ToObject<int>();
+                    return true;
+                }
+
+                return false;
+            }
+
             switch (serializedProperty.propertyType)
             {
                 case SerializedPropertyType.Integer:

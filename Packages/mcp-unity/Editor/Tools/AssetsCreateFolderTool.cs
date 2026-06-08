@@ -151,17 +151,27 @@ namespace McpUnity.Tools
                 return result;
             }
 
+            // Group Undo operation to address Undo-System interference mentioned in bug report
+            Undo.IncrementCurrentGroup();
+            Undo.SetCurrentGroupName($"MCP: Create Folder '{newName}'");
+
             string guid = AssetDatabase.CreateFolder(parentPath, newName);
-            AssetDatabase.Refresh();
 
             if (string.IsNullOrEmpty(guid))
             {
-                result["error"] = $"Failed to create folder '{targetPath}'.";
+                result["error"] = $"AssetDatabase.CreateFolder failed for '{targetPath}'. Check console for details (permissions, import conflicts, or Editor state).";
+                return result;
+            }
+
+            string verifiedPath = AssetDatabase.GUIDToAssetPath(guid);
+            if (string.IsNullOrEmpty(verifiedPath) || !AssetDatabase.IsValidFolder(verifiedPath))
+            {
+                result["error"] = $"Created folder GUID '{guid}' but verification failed for path '{verifiedPath}'.";
                 return result;
             }
 
             result["success"] = true;
-            result["path"] = targetPath;
+            result["path"] = verifiedPath;
             result["guid"] = guid;
             return result;
         }
