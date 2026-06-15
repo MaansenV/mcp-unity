@@ -446,6 +446,10 @@ namespace McpUnity.Unity
             AddTool(new EditorApplicationSetStateTool());
             AddTool(new EditorSelectionGetTool());
 
+            // Screenshot
+            AddTool(new ScreenshotSceneViewTool());
+            AddTool(new ScreenshotGameViewTool());
+
             // Test
             AddTool(new RunTestsTool(_testRunnerService));
 
@@ -466,6 +470,10 @@ namespace McpUnity.Unity
 
             // Batch
             AddTool(new BatchExecuteTool(this));
+
+            // Scripts
+            AddTool(new ScriptReadTool());
+            AddTool(new ScriptUpdateOrCreateTool());
         }
         
         /// <summary>

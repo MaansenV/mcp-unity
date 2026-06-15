@@ -172,14 +172,18 @@ Node reads config from `../ProjectSettings/McpUnitySettings.json` relative to **
 - `prefab_open` — Open prefab in Prefab Mode
 - `prefab_close` — Close Prefab Stage
 - `prefab_save` — Save prefab or apply overrides
+- `prefab_get_hierarchy` — Get hierarchy of prefab open in Prefab Mode
 - `console_clear_logs` — Clear Unity console
 - `editor_application_get_state` — Get editor state (play/pause/compiling)
 - `editor_application_set_state` — Set editor play/pause state
 - `editor_selection_get` — Get current editor selection
+- `screenshot_scene_view` — Capture Scene View screenshot as base64 PNG
+- `screenshot_game_view` — Capture Game View screenshot as base64 PNG (requires Play Mode)
 - `profiler_start` — Enable Unity Profiler
 - `profiler_stop` — Disable Unity Profiler
 - `profiler_get_status` — Get profiler status and memory
 - `profiler_get_memory_stats` — Get detailed memory statistics
+- `profiler_capture_frame` — Capture frame timing data (deltaTime, FPS, frameCount, timeSinceStartup, timeScale)
 - `profiler_status` — Get comprehensive profiler history status (active provider, frame range, capabilities)
 - `profiler_enable_recording` — Enable/disable Unity Profiler recording
 - `profiler_get_selected_frame` — Get the currently selected frame in Unity Profiler window
@@ -189,6 +193,8 @@ Node reads config from `../ProjectSettings/McpUnitySettings.json` relative to **
 - `scene_set_active` — Set active scene
 - `scene_get_data` — Get scene data with root GameObjects
 - `scene_list_opened` — List all opened scenes
+- `script_read` — Read a C# script file from the project
+- `script_update_or_create` — Create or update a C# script file in the project
 
 ### Available resources (current)
 - `unity://menu-items` — List of available menu items

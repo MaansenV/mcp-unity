@@ -17,7 +17,7 @@ Node server `1.3.0`).
 
 | Surface | Count | Where it lives |
 | --- | ---: | --- |
-| MCP **tools** | **68** | `Packages/mcp-unity/Server~/src/tools/` + `Editor/Tools/` |
+| MCP **tools** | **77** | `Packages/mcp-unity/Server~/src/tools/` + `Editor/Tools/` |
 | MCP **resources** | **7** | `Packages/mcp-unity/Server~/src/resources/` + `Editor/Resources/` |
 | MCP **prompts** | **1** | `Packages/mcp-unity/Server~/src/prompts/` |
 
@@ -33,20 +33,21 @@ Tools are grouped below by what they operate on. Names are exactly the
 4. [Components](#components) – 4 tools
 5. [Materials](#materials) – 4 tools
 6. [Shaders](#shaders) – 1 tool
-7. [Prefabs](#prefabs) – 5 tools
+7. [Prefabs](#prefabs) – 6 tools
 8. [Assets](#assets) – 10 tools
 9. [Console](#console) – 3 tools
 10. [Editor](#editor) – 4 tools
-11. [Profiler](#profiler) – 4 tools
-12. [Reflection](#reflection) – 3 tools
-13. [Object](#object) – 2 tools
-14. [Package Manager](#package-manager) – 4 tools
-15. [Test Runner](#test-runner) – 1 tool
-16. [Scripts](#scripts) – 1 tool
-17. [Batch](#batch) – 1 tool
-18. [Resources](#resources) – 7 resources
-19. [Prompts](#prompts) – 1 prompt
-20. [Usage notes](#usage-notes)
+11. [Screenshot](#screenshot) – 2 tools
+12. [Profiler](#profiler) – 8 tools
+13. [Reflection](#reflection) – 3 tools
+14. [Object](#object) – 2 tools
+15. [Package Manager](#package-manager) – 4 tools
+16. [Test Runner](#test-runner) – 1 tool
+17. [Scripts](#scripts) – 3 tools
+18. [Batch](#batch) – 1 tool
+19. [Resources](#resources) – 7 resources
+20. [Prompts](#prompts) – 1 prompt
+21. [Usage notes](#usage-notes)
 
 ---
 
@@ -147,6 +148,7 @@ Create, open, save, and close prefabs.
 | `prefab_open` | Opens a prefab asset in Prefab Mode. |
 | `prefab_close` | Closes the current Prefab Stage. Optionally saves changes first. |
 | `prefab_save` | Saves a prefab asset directly, applies prefab instance overrides, or saves a scene object as a prefab. |
+| `prefab_get_hierarchy` | Retrieves the hierarchy of a prefab currently open in Prefab Mode. |
 
 ---
 
@@ -194,6 +196,17 @@ Execute menu items and read or change the editor's high-level state.
 
 ---
 
+## Screenshot
+
+Capture screenshots of the Scene View and Game View as base64-encoded PNGs.
+
+| Tool | Description |
+| --- | --- |
+| `screenshot_scene_view` | Captures a screenshot of the Unity Scene View. Supports custom width/height (default 1920x1080, max 3840). |
+| `screenshot_game_view` | Captures a screenshot of the Unity Game View. Requires Play Mode to be active. |
+
+---
+
 ## Profiler
 
 | Tool | Description |
@@ -202,6 +215,10 @@ Execute menu items and read or change the editor's high-level state.
 | `profiler_stop` | Disables the Unity Profiler. |
 | `profiler_get_status` | Gets the current profiler status and memory usage. |
 | `profiler_get_memory_stats` | Gets detailed Unity Profiler memory statistics. |
+| `profiler_capture_frame` | Returns deltaTime, FPS, frameCount, timeSinceStartup, timeScale in one call. |
+| `profiler_status` | Gets comprehensive profiler history status including active provider, frame range, and capabilities. |
+| `profiler_enable_recording` | Enable or disable Unity Profiler recording. |
+| `profiler_get_selected_frame` | Gets the currently selected frame in the Unity Profiler window. |
 
 ---
 
@@ -251,9 +268,13 @@ Add, remove, list, and search packages via Unity's Package Manager.
 
 ## Scripts
 
+Read and write C# script files in the Unity project.
+
 | Tool | Description |
 | --- | --- |
 | `recompile_scripts` | Recompiles all scripts in the Unity project. Returns compilation logs. |
+| `script_read` | Reads a C# script file from the Unity project and returns its content. |
+| `script_update_or_create` | Creates or updates a C# script file in the Unity project. Refreshes AssetDatabase. |
 
 ---
 

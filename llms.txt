@@ -1,0 +1,71 @@
+# MCP Unity (Fork) — llms.txt
+
+> LLM-oriented project summary for mcp-unity (MaansenV fork).
+
+## What is this?
+
+MCP Unity exposes Unity Editor capabilities to MCP-enabled AI clients (Claude, Cursor, OpenCode, etc.) via Model Context Protocol. A Node.js stdio server bridges MCP requests to a WebSocket server running inside the Unity Editor.
+
+```
+MCP Client ← stdio → Node.js Server ← WebSocket (8090) → Unity Editor
+```
+
+## Architecture
+
+- **C# Editor package** (`Packages/mcp-unity/Editor/`): WebSocket server, tool handlers, resources, MainThreadDispatcher
+- **TypeScript MCP server** (`Packages/mcp-unity/Server~/`): Registers MCP tools/resources/prompts, forwards to Unity over WebSocket
+- **Bridge contract**: Tool/resource names must match exactly between Node (`toolName`) and Unity (`Name`), typically `lower_snake_case`
+
+## Fork improvements over CoderGamester/mcp-unity
+
+- MainThreadDispatcher (fixes no-focus timeouts — `EditorApplication.update` instead of `delayCall`)
+- Auto-repaint after all mutations (SceneView.RepaintAll)
+- Multi-object selection + frame-on-select in select_gameobject
+- Object reference resolution in update_component (ScriptableObject, Component, GameObject via asset/scene paths)
+- ToolErrors helper for structured error messages
+- 77 tools, 7 resources, 1 prompt
+- Profiler tools: start, stop, get_status, get_memory_stats, capture_frame, status, enable_recording, get_selected_frame
+
+## Key files
+
+| File | Purpose |
+|---|---|
+| `Packages/mcp-unity/Server~/src/index.ts` | MCP tool/resource/prompt registration |
+| `Packages/mcp-unity/Server~/src/tools/*.ts` | Node-side tool definitions (zod schemas) |
+| `Packages/mcp-unity/Editor/UnityBridge/McpUnityServer.cs` | Unity-side tool registration |
+| `Packages/mcp-unity/Editor/Tools/*.cs` | Unity-side tool handlers |
+| `Packages/mcp-unity/Editor/UnityBridge/McpUnitySocketHandler.cs` | WebSocket message routing |
+| `Packages/mcp-unity/Editor/Utils/MainThreadDispatcher.cs` | Thread-safe dispatcher |
+| `Packages/mcp-unity/Editor/Utils/ToolErrors.cs` | Structured error messages |
+
+## Adding a tool
+
+1. C# tool in `Editor/Tools/<Name>Tool.cs` (inherit `McpToolBase`)
+2. Register in `McpUnityServer.cs` → `RegisterTools()` via `AddTool(new <Name>Tool())`
+3. TS tool in `Server~/src/tools/<name>Tool.ts` (zod schema + handler)
+4. Register in `Server~/src/index.ts`
+5. Build: `cd Server~ && npm run build`
+
+## Configuration
+
+- WebSocket: `ws://localhost:8090/McpUnity`
+- Settings: `ProjectSettings/McpUnitySettings.json`
+- Timeout: 10 seconds default
+- Remote: set `AllowRemoteConnections=true` + `UNITY_HOST=<ip>`
+
+## MCP client config
+
+```json
+{
+  "mcpServers": {
+    "mcp-unity": {
+      "command": "node",
+      "args": ["ABSOLUTE/PATH/TO/Packages/mcp-unity/Server~/build/index.js"]
+    }
+  }
+}
+```
+
+## License
+
+MIT

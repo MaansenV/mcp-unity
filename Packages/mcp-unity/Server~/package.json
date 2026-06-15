@@ -2,9 +2,9 @@
   "name": "mcp-unity-server",
   "version": "1.4.5",
   "description": "MCP Unity Server for executing Unity operations and request Editor information",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "type": "module",
-  "mcpName": "io.github.codergamester/mcp-unity",
+  "mcpName": "io.github.maansenv/mcp-unity",
   "bin": {
     "mcp-unity-server": "./build/index.js"
   },
@@ -26,7 +26,7 @@
     "game",
     "engine"
   ],
-  "author": "CoderGamester",
+  "author": "MaansenV",
   "license": "MIT",
   "devDependencies": {
     "@types/cors": "^2.8.17",

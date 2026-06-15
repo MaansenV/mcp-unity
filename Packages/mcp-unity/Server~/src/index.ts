@@ -68,6 +68,10 @@ import { registerSceneSetActiveTool } from './tools/sceneSetActiveTool.js';
 import { registerSceneGetDataTool } from './tools/sceneGetDataTool.js';
 import { registerSceneListOpenedTool } from './tools/sceneListOpenedTool.js';
 import { registerAssetsShaderListAllTool } from './tools/assetsShaderListAllTool.js';
+import { registerScreenshotSceneViewTool } from './tools/screenshotSceneViewTool.js';
+import { registerScreenshotGameViewTool } from './tools/screenshotGameViewTool.js';
+import { registerScriptReadTool } from './tools/scriptReadTool.js';
+import { registerScriptUpdateOrCreateTool } from './tools/scriptUpdateOrCreateTool.js';
 import { registerGetMenuItemsResource } from './resources/getMenuItemResource.js';
 import { registerGetConsoleLogsResource } from './resources/getConsoleLogsResource.js';
 import { registerGetHierarchyResource } from './resources/getScenesHierarchyResource.js';
@@ -196,6 +200,14 @@ registerSceneListOpenedTool(server, mcpUnity, toolLogger);
 
 // Register Shader tools
 registerAssetsShaderListAllTool(server, mcpUnity, toolLogger);
+
+// Register Screenshot tools
+registerScreenshotSceneViewTool(server, mcpUnity, toolLogger);
+registerScreenshotGameViewTool(server, mcpUnity, toolLogger);
+
+// Register Script tools
+registerScriptReadTool(server, mcpUnity, toolLogger);
+registerScriptUpdateOrCreateTool(server, mcpUnity, toolLogger);
 
 // Register all resources into the MCP server
 registerGetTestsResource(server, mcpUnity, resourceLogger);
