@@ -78,7 +78,7 @@ namespace McpUnity.Tools
                 ["message"] = $"Successfully created prefab asset at '{prefabPath}'",
                 ["prefabPath"] = prefabPath,
                 ["guid"] = guid,
-                ["instanceId"] = gameObject.GetInstanceID()
+                ["instanceId"] = McpObjectId.FromObject(gameObject)
             };
         }
 

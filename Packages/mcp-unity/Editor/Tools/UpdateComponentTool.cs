@@ -56,7 +56,7 @@ namespace McpUnity.Tools
             
             if (instanceId.HasValue)
             {
-                gameObject = EditorUtility.InstanceIDToObject(instanceId.Value) as GameObject;
+                gameObject = McpObjectId.ToObject(instanceId.Value) as GameObject;
                 identifier = $"ID {instanceId.Value}";
             }
             else
@@ -521,7 +521,7 @@ namespace McpUnity.Tools
                 {
                     if (!int.TryParse(obj["instanceId"].ToString(), out int id))
                         return (false, null, $"Invalid instanceId value: {obj["instanceId"]}");
-                    var resolved = EditorUtility.InstanceIDToObject(id);
+                    var resolved = McpObjectId.ToObject(id);
                     if (resolved == null)
                         return (false, null, $"No object found for instanceId {id}");
                     if (resolved is GameObject goInst)
@@ -574,7 +574,7 @@ namespace McpUnity.Tools
             if (token.Type == JTokenType.Integer)
             {
                 int id = token.ToObject<int>();
-                var obj = EditorUtility.InstanceIDToObject(id);
+                var obj = McpObjectId.ToObject(id);
                 if (obj == null)
                     return (false, null, $"No object found for instanceId {id}");
                 if (obj is GameObject goId)
@@ -595,7 +595,7 @@ namespace McpUnity.Tools
                 // 1) Numeric string → instanceId
                 if (int.TryParse(value, out int instanceId))
                 {
-                    var obj = EditorUtility.InstanceIDToObject(instanceId);
+                    var obj = McpObjectId.ToObject(instanceId);
                     if (obj != null)
                     {
                         if (obj is GameObject goNum)

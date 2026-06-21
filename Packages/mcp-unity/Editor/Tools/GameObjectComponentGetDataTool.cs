@@ -71,7 +71,7 @@ namespace McpUnity.Tools
                 ["message"] = $"Retrieved component data for '{component.GetType().Name}' on GameObject '{gameObject.name}'",
                 ["componentType"] = component.GetType().FullName,
                 ["enabled"] = GetEnabledState(component),
-                ["instanceId"] = gameObject.GetInstanceID(),
+                ["instanceId"] = McpObjectId.FromObject(gameObject),
                 ["objectPath"] = objectPathUsed,
                 ["componentName"] = component.GetType().Name,
                 ["serializedProperties"] = serializedProperties
@@ -84,7 +84,7 @@ namespace McpUnity.Tools
 
             if (instanceId.HasValue)
             {
-                var unityObject = EditorUtility.InstanceIDToObject(instanceId.Value);
+                var unityObject = McpObjectId.ToObject(instanceId.Value);
                 if (unityObject is GameObject gameObject)
                 {
                     objectPathUsed = GetHierarchyPath(gameObject);
@@ -183,8 +183,8 @@ namespace McpUnity.Tools
                     return new JObject
                     {
                         ["name"] = reference != null ? reference.name : null,
-                        ["type"] = reference != null ? reference.GetType().FullName : null,
-                        ["instanceId"] = reference != null ? reference.GetInstanceID() : 0
+                        ["type"] = reference != null ? reference.GetType().Name : null,
+                        ["instanceId"] = reference != null ? McpObjectId.FromObject(reference) : 0
                     };
                 default:
                     return new JValue(property.ToString());

@@ -200,7 +200,7 @@ namespace McpUnity.Tools
                     {
                         ["name"] = reference != null ? reference.name : null,
                         ["type"] = reference != null ? reference.GetType().Name : null,
-                        ["instanceId"] = reference != null ? reference.GetInstanceID() : 0
+                        ["instanceId"] = reference != null ? McpObjectId.FromObject(reference) : 0
                     };
                 default:
                     return new JValue(property.ToString());

@@ -92,7 +92,7 @@ namespace McpUnity.Tools
 
             if (instanceId.HasValue)
             {
-                var unityObject = EditorUtility.InstanceIDToObject(instanceId.Value);
+                var unityObject = McpObjectId.ToObject(instanceId.Value);
                 if (unityObject is GameObject gameObject)
                 {
                     objectPathUsed = GetHierarchyPath(gameObject);

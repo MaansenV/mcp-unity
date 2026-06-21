@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using Newtonsoft.Json.Linq;
 using McpUnity.Resources;
 using McpUnity.Unity;
+using McpUnity.Utils;
 
 namespace McpUnity.Tools
 {
@@ -59,7 +60,7 @@ namespace McpUnity.Tools
                 ["type"] = "text",
                 ["message"] = $"Retrieved hierarchy for prefab '{rootGameObject.name}'",
                 ["prefabPath"] = prefabPath,
-                ["rootInstanceId"] = rootGameObject.GetInstanceID(),
+                ["rootInstanceId"] = McpObjectId.FromObject(rootGameObject),
                 ["gameObject"] = gameObjectData
             };
         }

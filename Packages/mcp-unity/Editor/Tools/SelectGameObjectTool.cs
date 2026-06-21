@@ -48,7 +48,7 @@ namespace McpUnity.Tools
             }
             else if (instanceId.HasValue)
             {
-                var obj = EditorUtility.InstanceIDToObject(instanceId.Value);
+                var obj = McpObjectId.ToObject(instanceId.Value);
                 if (obj != null) selectedObjects.Add(obj);
             }
             else if (!string.IsNullOrEmpty(objectPath))

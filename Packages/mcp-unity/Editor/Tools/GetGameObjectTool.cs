@@ -1,5 +1,6 @@
 using McpUnity.Resources;
 using McpUnity.Unity;
+using McpUnity.Utils;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -54,7 +55,7 @@ namespace McpUnity.Tools
             if (int.TryParse(idOrName, out int instanceId))
             {
                 // Unity Instance IDs are typically negative, but we'll accept any integer
-                UnityEngine.Object unityObject = EditorUtility.InstanceIDToObject(instanceId);
+                UnityEngine.Object unityObject = McpObjectId.ToObject(instanceId);
                 gameObject = unityObject as GameObject;
             }
             else
@@ -92,7 +93,7 @@ namespace McpUnity.Tools
                 ["success"] = true,
                 ["message"] = $"Retrieved GameObject data for '{gameObject.name}'",
                 ["gameObject"] = gameObjectData,
-                ["instanceId"] = gameObject.GetInstanceID()
+                ["instanceId"] = McpObjectId.FromObject(gameObject)
             };
         }
 

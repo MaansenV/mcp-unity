@@ -133,7 +133,7 @@ namespace McpUnity.Tools
                 {
                     results.Add(new JObject
                     {
-                        ["instanceId"] = gameObject.GetInstanceID(),
+                        ["instanceId"] = McpObjectId.FromObject(gameObject),
                         ["name"] = gameObject.name,
                         ["path"] = GetHierarchyPath(gameObject),
                         ["tag"] = gameObject.tag,

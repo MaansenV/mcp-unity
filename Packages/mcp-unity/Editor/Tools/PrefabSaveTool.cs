@@ -64,7 +64,7 @@ namespace McpUnity.Tools
                     ["success"] = true,
                     ["type"] = "text",
                     ["message"] = $"Applied prefab overrides for '{prefabInstanceRoot.name}'",
-                    ["instanceId"] = prefabInstanceRoot.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(prefabInstanceRoot),
                     ["objectPath"] = objectPathUsed,
                     ["prefabPath"] = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(prefabInstanceRoot)
                 };
@@ -137,7 +137,7 @@ namespace McpUnity.Tools
                     ["message"] = $"Successfully saved prefab at '{prefabPath}'",
                     ["prefabPath"] = prefabPath,
                     ["guid"] = guid,
-                    ["instanceId"] = gameObject != null ? new JValue(gameObject.GetInstanceID()) : null,
+                    ["instanceId"] = gameObject != null ? new JValue(McpObjectId.FromObject(gameObject)) : null,
                     ["objectPath"] = objectPathUsed
                 };
             }
@@ -172,7 +172,7 @@ namespace McpUnity.Tools
                     ["message"] = $"Successfully saved prefab asset '{gameObject.name}'",
                     ["prefabPath"] = assetPath,
                     ["guid"] = AssetDatabase.AssetPathToGUID(assetPath),
-                    ["instanceId"] = gameObject.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(gameObject),
                     ["objectPath"] = objectPathUsed
                 };
             }

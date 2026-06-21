@@ -100,7 +100,7 @@ namespace McpUnity.Tools
                     string.Empty,
                     shaderName,
                     true,
-                    shader.GetInstanceID()
+                    McpObjectId.FromObject(shader)
                 ));
             }
         }
@@ -136,7 +136,7 @@ namespace McpUnity.Tools
                     string.Empty,
                     materialPath,
                     true,
-                    material.GetInstanceID()
+                    McpObjectId.FromObject(material)
                 ));
             }
         }

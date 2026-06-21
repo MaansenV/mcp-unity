@@ -47,7 +47,7 @@ namespace McpUnity.Tools
                     maxProperties = HardMaxProperties;
                 }
 
-                UnityEngine.Object unityObject = EditorUtility.InstanceIDToObject(instanceId.Value);
+                UnityEngine.Object unityObject = McpObjectId.ToObject(instanceId.Value);
                 if (unityObject == null)
                 {
                     return McpUnitySocketHandler.CreateErrorResponse(
@@ -165,7 +165,7 @@ namespace McpUnity.Tools
                     {
                         ["name"] = reference != null ? reference.name : null,
                         ["type"] = reference != null ? reference.GetType().Name : null,
-                        ["instanceId"] = reference != null ? reference.GetInstanceID() : 0
+                        ["instanceId"] = reference != null ? McpObjectId.FromObject(reference) : 0
                     };
                 }
                 case SerializedPropertyType.Enum:

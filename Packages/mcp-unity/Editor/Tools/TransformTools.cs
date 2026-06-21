@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using McpUnity.Unity;
+using McpUnity.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace McpUnity.Tools
@@ -77,7 +78,7 @@ namespace McpUnity.Tools
                 ["success"] = true,
                 ["type"] = "text",
                 ["message"] = $"GameObject '{gameObject.name}' moved successfully.",
-                ["instanceId"] = gameObject.GetInstanceID(),
+                ["instanceId"] = McpObjectId.FromObject(gameObject),
                 ["name"] = gameObject.name,
                 ["path"] = TransformToolUtils.GetGameObjectPath(gameObject),
                 ["position"] = new JObject
@@ -171,7 +172,7 @@ namespace McpUnity.Tools
                 ["success"] = true,
                 ["type"] = "text",
                 ["message"] = $"GameObject '{gameObject.name}' rotated successfully.",
-                ["instanceId"] = gameObject.GetInstanceID(),
+                ["instanceId"] = McpObjectId.FromObject(gameObject),
                 ["name"] = gameObject.name,
                 ["path"] = TransformToolUtils.GetGameObjectPath(gameObject),
                 ["rotation"] = new JObject
@@ -260,7 +261,7 @@ namespace McpUnity.Tools
                 ["success"] = true,
                 ["type"] = "text",
                 ["message"] = $"GameObject '{gameObject.name}' scaled successfully.",
-                ["instanceId"] = gameObject.GetInstanceID(),
+                ["instanceId"] = McpObjectId.FromObject(gameObject),
                 ["name"] = gameObject.name,
                 ["path"] = TransformToolUtils.GetGameObjectPath(gameObject),
                 ["scale"] = new JObject
@@ -367,7 +368,7 @@ namespace McpUnity.Tools
                 ["success"] = true,
                 ["type"] = "text",
                 ["message"] = $"GameObject '{gameObject.name}' transform updated successfully.",
-                ["instanceId"] = gameObject.GetInstanceID(),
+                ["instanceId"] = McpObjectId.FromObject(gameObject),
                 ["name"] = gameObject.name,
                 ["path"] = TransformToolUtils.GetGameObjectPath(gameObject),
                 ["transform"] = new JObject
@@ -440,7 +441,7 @@ namespace McpUnity.Tools
 
             if (instanceId.HasValue)
             {
-                gameObject = EditorUtility.InstanceIDToObject(instanceId.Value) as GameObject;
+                gameObject = McpObjectId.ToObject(instanceId.Value) as GameObject;
                 identifierInfo = $"instance ID {instanceId.Value}";
             }
             else if (!string.IsNullOrEmpty(objectPath))

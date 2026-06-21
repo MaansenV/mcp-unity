@@ -365,7 +365,7 @@ namespace McpUnity.Tools
                 TryConvertToInt(instanceIdToken, out int instanceId) &&
                 instanceId != 0)
             {
-                resolvedObject = EditorUtility.InstanceIDToObject(instanceId);
+                resolvedObject = McpObjectId.ToObject(instanceId);
             }
 
             if (resolvedObject == null &&

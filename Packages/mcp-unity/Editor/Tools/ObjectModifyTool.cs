@@ -42,7 +42,7 @@ namespace McpUnity.Tools
                     );
                 }
 
-                UnityEngine.Object unityObject = EditorUtility.InstanceIDToObject(instanceId.Value);
+                UnityEngine.Object unityObject = McpObjectId.ToObject(instanceId.Value);
                 if (unityObject == null)
                 {
                     return McpUnitySocketHandler.CreateErrorResponse(
@@ -244,7 +244,7 @@ namespace McpUnity.Tools
                 TryConvertToInt(instanceIdToken, out int instanceId) &&
                 instanceId != 0)
             {
-                resolvedObject = EditorUtility.InstanceIDToObject(instanceId);
+                resolvedObject = McpObjectId.ToObject(instanceId);
             }
 
             if (resolvedObject == null &&

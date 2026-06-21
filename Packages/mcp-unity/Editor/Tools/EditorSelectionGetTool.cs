@@ -30,7 +30,7 @@ namespace McpUnity.Tools
             JArray gameObjects = new JArray(
                 Selection.gameObjects.Select(gameObject => new JObject
                 {
-                    ["instanceId"] = gameObject.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(gameObject),
                     ["name"] = gameObject.name,
                     ["path"] = GetHierarchyPath(gameObject.transform)
                 })
@@ -39,7 +39,7 @@ namespace McpUnity.Tools
             JObject activeGameObjectData = activeGameObject != null
                 ? new JObject
                 {
-                    ["instanceId"] = activeGameObject.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(activeGameObject),
                     ["name"] = activeGameObject.name,
                     ["path"] = GetHierarchyPath(activeGameObject.transform)
                 }
@@ -48,7 +48,7 @@ namespace McpUnity.Tools
             JObject activeObjectData = activeObject != null
                 ? new JObject
                 {
-                    ["instanceId"] = activeObject.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(activeObject),
                     ["name"] = activeObject.name,
                     ["type"] = activeObject.GetType().Name
                 }

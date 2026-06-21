@@ -43,7 +43,7 @@ namespace McpUnity.Tools
                     {
                         rootObjects.Add(new JObject
                         {
-                            ["instanceId"] = rootObject.GetInstanceID(),
+                            ["instanceId"] = McpObjectId.FromObject(rootObject),
                             ["name"] = rootObject.name,
                             ["activeSelf"] = rootObject.activeSelf,
                             ["childCount"] = rootObject.transform.childCount

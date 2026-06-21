@@ -73,7 +73,7 @@ namespace McpUnity.Tools
                 GameObject parentObject = null;
                 if (parentId.HasValue)
                 {
-                    parentObject = EditorUtility.InstanceIDToObject(parentId.Value) as GameObject;
+                    parentObject = McpObjectId.ToObject(parentId.Value) as GameObject;
                     if (parentObject == null)
                     {
                         return McpUnitySocketHandler.CreateErrorResponse(
@@ -131,7 +131,7 @@ namespace McpUnity.Tools
                 Selection.activeGameObject = createdObject;
                 EditorGUIUtility.PingObject(createdObject);
 
-                McpLogger.LogInfo($"Created GameObject '{createdObject.name}' with instance ID {createdObject.GetInstanceID()}");
+                McpLogger.LogInfo($"Created GameObject '{createdObject.name}' with instance ID {McpObjectId.FromObject(createdObject)}");
 
                 SceneView.RepaintAll();
                 UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
@@ -141,7 +141,7 @@ namespace McpUnity.Tools
                     ["success"] = true,
                     ["type"] = "text",
                     ["message"] = $"Successfully created GameObject '{createdObject.name}'.",
-                    ["instanceId"] = createdObject.GetInstanceID(),
+                    ["instanceId"] = McpObjectId.FromObject(createdObject),
                     ["name"] = createdObject.name,
                     ["path"] = GetGameObjectPath(createdObject)
                 };

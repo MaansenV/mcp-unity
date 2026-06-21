@@ -178,7 +178,7 @@ namespace McpUnity.Tools
 
             if (instanceId.HasValue)
             {
-                target = EditorUtility.InstanceIDToObject(instanceId.Value);
+                target = McpObjectId.ToObject(instanceId.Value);
                 if (target == null)
                 {
                     error = McpUnitySocketHandler.CreateErrorResponse(
@@ -274,7 +274,7 @@ namespace McpUnity.Tools
                     int? instanceId = obj["instanceId"]?.ToObject<int?>();
                     if (instanceId.HasValue)
                     {
-                        convertedValue = EditorUtility.InstanceIDToObject(instanceId.Value);
+                        convertedValue = McpObjectId.ToObject(instanceId.Value);
                         return true;
                     }
                 }
