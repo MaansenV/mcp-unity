@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
+using McpUnity.Unity;
 using McpUnity.Utils;
 
 namespace McpUnity.Tools
@@ -109,7 +110,7 @@ namespace McpUnity.Tools
             catch (Exception ex)
             {
                 tcs.SetResult(McpUnitySocketHandler.CreateErrorResponse(
-                    ToolErrors.ExecutionError($"Failed to write script: {ex.Message}"), "execution_error"));
+                    ToolErrors.ExecutionError("write script", ex.Message), "execution_error"));
             }
         }
     }

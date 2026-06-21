@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
+using McpUnity.Unity;
 using McpUnity.Utils;
 
 namespace McpUnity.Tools
