@@ -1,6 +1,6 @@
 {
   "name": "mcp-unity-server",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "MCP Unity Server for executing Unity operations and request Editor information",
   "main": "build/index.js",
   "type": "module",

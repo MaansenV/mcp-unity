@@ -5,31 +5,39 @@ namespace McpUnity.Utils
 {
     /// <summary>
     /// Compatibility bridge between Unity 2022.3's int-based InstanceID
-    /// and Unity 6's EntityId struct. Centralises the version-conditional
-    /// code so call sites stay readable and the package compiles on both
-    /// Unity 2022.3+ and Unity 6000.0+.
+    /// and Unity 6's EntityId-based API.
+    ///
+    /// The MCP wire format exchanges "instanceId" as an int. Unity 6 has
+    /// introduced the <see cref="UnityEngine.EntityId"/> struct as the
+    /// canonical handle and marked the legacy int APIs
+    /// (<c>EditorUtility.InstanceIDToObject(int)</c> and
+    /// <c>Object.GetInstanceID()</c>) as obsolete-with-error. The legacy
+    /// APIs still exist and work in Unity 6.x but are slated for removal
+    /// in a future version.
+    ///
+    /// Because <see cref="UnityEngine.EntityId"/> has no public constructor
+    /// accepting an int and its implicit cast to int is itself
+    /// obsolete-with-error, the only viable bridge today is to keep calling
+    /// the legacy int APIs and suppress CS0619 explicitly. When Unity
+    /// actually removes these APIs, the MCP wire format will need to switch
+    /// to a string-based EntityId encoding.
     /// </summary>
     internal static class McpObjectId
     {
         /// <summary>
-        /// Resolves a numeric InstanceID to a UnityEngine.Object, working
-        /// across Unity 2022.3 and Unity 6.
+        /// Resolves a numeric InstanceID to a <see cref="UnityEngine.Object"/>.
         /// </summary>
         /// <param name="instanceId">Legacy int InstanceID as exposed by the MCP API.</param>
-        /// <returns>The matching UnityEngine.Object, or null if not found / id is 0.</returns>
+        /// <returns>The matching <see cref="UnityEngine.Object"/>, or null if not found / id is 0.</returns>
         public static UnityEngine.Object ToObject(int instanceId)
         {
-#if UNITY_6000_0_OR_NEWER
-            return EditorUtility.EntityIdToObject(new EntityId(instanceId));
-#else
+#pragma warning disable CS0619 // EditorUtility.InstanceIDToObject(int) is obsolete in Unity 6; still works until removal.
             return EditorUtility.InstanceIDToObject(instanceId);
-#endif
+#pragma warning restore CS0619
         }
 
         /// <summary>
-        /// Returns the numeric ID for a UnityEngine.Object in a form that is
-        /// stable across Unity 2022.3 and Unity 6 (the cast on EntityId is
-        /// explicit and yields the same integer as the legacy GetInstanceID).
+        /// Returns the numeric InstanceID for a <see cref="UnityEngine.Object"/>.
         /// </summary>
         /// <param name="obj">Object whose ID should be returned. null yields 0.</param>
         public static int FromObject(UnityEngine.Object obj)
@@ -38,11 +46,9 @@ namespace McpUnity.Utils
             {
                 return 0;
             }
-#if UNITY_6000_0_OR_NEWER
-            return (int)obj.GetEntityId();
-#else
+#pragma warning disable CS0619 // Object.GetInstanceID() is obsolete in Unity 6; still works until removal.
             return obj.GetInstanceID();
-#endif
+#pragma warning restore CS0619
         }
     }
 }
